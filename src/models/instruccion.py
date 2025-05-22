@@ -1,4 +1,6 @@
 class Instruccion:
+
+    
     def __init__(self, mnemonico: str, nombre: str, descripcion: str, regex: str,
                  sintaxis: str, const: list[list[str]], var_rel: list[list[str]]):
         self.mnemonico = mnemonico
@@ -7,7 +9,7 @@ class Instruccion:
         self.regex = regex
         self.sintaxis = sintaxis
         self.const = const  # Lista de listas de Strings
-        self.var_rel = var_rel  # Lista de listas de Strings
+        self.var_rel = var_rel  # Lista de listas de Strings0
 
     def __str__(self):
         return (f"Instrucción: {self.nombre} ({self.mnemonico})\n"

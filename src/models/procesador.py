@@ -1,3 +1,5 @@
+import formatoInstruccion
+
 """
 Un procesador tiene las siguientes cosas:
 - Nombre para identificarlo (String)
@@ -31,71 +33,54 @@ Parámetros de la arquitectura:
         - Nombre del procesador
 
 """
+import json
+
 
 class Procesador:
-    def __init__(self):
-        self.nombre
-        self.tamanoPalabra
-        self.distMemorias
-        self.profundidad
-        self.ancho
-        self.tamMinDir
-        self.mapMem
-        self.aumentoPc
-        self.endianess
-        self.setDeInstrucciones
-        self.formatoDeSintaxis
-        self.codigo
+    def __init__(self, nombre, tamano_palabra, distribucion_memorias, profundidad, ancho, tamano_minimo_direccionable, mapeo_memoria, aumento_pc, endianess, formato_de_sintaxis = [], set_de_instrucciones = [], codigo = []):
+        self.nombre = nombre
+        self.tamano_palabra = tamano_palabra
+        self.distribucion_memorias = distribucion_memorias
+        self.profundidad = profundidad
+        self.ancho = ancho
+        self.tamano_minimo_direccionable = tamano_minimo_direccionable
+        self.mapeo_memoria = mapeo_memoria
+        self.aumento_pc = aumento_pc
+        self.endianess = endianess
+        self.formato_de_sintaxis = formato_de_sintaxis
+        self.set_de_instrucciones = set_de_instrucciones
+        self.codigo = codigo
 
-    @classmethod
-    def crearNuevo(cls, nombre, tamano_palabra, distribucion_memoria, profundidad, ancho, tam_min_dir, map_mem, aumento_pc, endianness):
-        instancia  = cls()
-        instancia.nombre = nombre
-        instancia.tamano_palabra = tamano_palabra
-        instancia.distribucion_memoria = distribucion_memoria
-        instancia.profundidad = profundidad
-        instancia.ancho = ancho
-        instancia.tam_min_dir = tam_min_dir
-        instancia.map_mem = map_mem
-        instancia.aumento_pc = aumento_pc
-        instancia.endianness = endianness
+    def agregarFormatoDeSintaxis(self, formato_de_sintaxis):
+        self.formato_de_sintaxis = formato_de_sintaxis
 
-    @classmethod
-    def leer_existente (cls, nombre, tamano_palabra, distribucion_memoria, profundidad, ancho, tam_min_dir, map_mem, aumento_pc, endianness, set_de_instrucciones, formato_de_sintaxis):
-        instancia = cls()
-        instancia.nombre = nombre
-        instancia.tamano_palabra = tamano_palabra
-        instancia.distribucion_memoria = distribucion_memoria
-        instancia.profundidad = profundidad
-        instancia.ancho = ancho
-        instancia.tam_min_dir = tam_min_dir
-        instancia.map_mem = map_mem
-        instancia.aumento_pc = aumento_pc
-        instancia.endianness = endianness
-        instancia.set_de_instrucciones = set_de_instrucciones
-        instancia.formato_de_sintaxis = formato_de_sintaxis
+    def agregarSetDeInstrucciones(self, set_de_instrucciones):
+        self.set_de_instrucciones = set_de_instrucciones
 
-    @classmethod
-    def leer_codigo(cls, nombre, tamano_palabra, distribucion_memoria, profundidad, ancho, tam_min_dir, map_mem, aumento_pc, endianness, set_de_instrucciones, formato_de_sintaxis, codigo):
-        instancia = cls()
-        instancia.nombre = nombre
-        instancia.tamano_palabra = tamano_palabra
-        instancia.distribucion_memoria = distribucion_memoria
-        instancia.profundidad = profundidad
-        instancia.ancho = ancho
-        instancia.tam_min_dir = tam_min_dir
-        instancia.map_mem = map_mem
-        instancia.aumento_pc = aumento_pc
-        instancia.endianness = endianness
-        instancia.set_de_instrucciones = set_de_instrucciones
-        instancia.formato_de_sintaxis = formato_de_sintaxis
-        instancia.codigo = codigo
+    def agregarCodigo(self, codigo):
+        self.codigo = codigo
 
+    def toDict(self):
+        return (f"Procesador: {self.nombre}, "
+                f"Tamaño Palabra: {self.tamano_palabra},"
+                f"Dist. Memorias: {self.distribucion_memorias}, "
+                f"Profundidad: {self.profundidad}, "
+                f"Ancho: {self.ancho}, "
+                f"Tamaño Min. Dir: {self.tamano_minimo_direccionable}, "
+                f"MapMem: {self.mapeo_memoria}, "
+                f"Aumento PC: {self.aumento_pc}, "
+                f"Endianess: {self.endianess}, "
+                f"Set de Instrucción: {len(self.set_de_instrucciones)}, "
+                f"Formato de Sintaxis: {len(self.formato_de_sintaxis)}, "
+                f"Código: {len(self.codigo)}")
 
+    def guardarEnJSON(self):
+        with open("procesador.json", "w", encoding="utf-8") as f:
+            json.dump(Procesador.toDict(), f, indent = 4)
 
     def __str__(self):
         return (f"Procesador: {self.nombre}, Tamaño Palabra: {self.tamano_palabra}, "
-                f"Dist. Memorias: {self.dist_memorias}, Profundidad: {self.profundidad}, Ancho: {self.ancho}, "
-                f"Tamaño Min. Dir: {self.tam_min_dir}, MapMem: {self.map_mem}, Aumento PC: {self.aumento_pc}, "
-                f"Endianess: {self.endianess}, Set de Instrucción: {len(self.set_de_instruccion)}, "
+                f"Dist. Memorias: {self.distribucion_memorias}, Profundidad: {self.profundidad}, Ancho: {self.ancho}, "
+                f"Tamaño Min. Dir: {self.tamano_minimo_direccionable}, MapMem: {self.mapeo_memoria}, Aumento PC: {self.aumento_pc}, "
+                f"Endianess: {self.endianess}, Set de Instrucción: {len(self.set_de_instrucciones)}, "
                 f"Formato de Sintaxis: {len(self.formato_de_sintaxis)}, Código: {len(self.codigo)} líneas")
