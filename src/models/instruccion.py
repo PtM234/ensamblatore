@@ -11,6 +11,17 @@ class Instruccion:
         self.const = const  # Lista de listas de Strings
         self.var_rel = var_rel  # Lista de listas de Strings0
 
+    def toDict(self):
+        return {
+            "Mnemonico": self.mnemonico,
+            "Nombre": self.nombre,
+            "Descripcion": self.descripcion,
+            "regex": self.regex,
+            "Sintaxis": self.sintaxis,
+            "Constantes": self.const,
+            "Variables relacionadas": self.var_rel
+        }
+
     def __str__(self):
         return (f"Instrucción: {self.nombre} ({self.mnemonico})\n"
                 f"Descripción: {self.descripcion}\n"

@@ -6,6 +6,14 @@ class FormatoDeInstruccion:
         self.bits_opcode = bits_opcode         # Cuántos bits ocupa el opcode
         self.campos_operandos = campos_operandos  # Lista de tuplas (nombre_operando, cantidad_bits)
 
+    def toDict(self):
+        return {
+            "nombre": self.nombre,
+            "total_bits": self.total_bits,
+            "bits_opcode": self.bits_opcode,
+            "campos_operandos": self.campos_operandos
+        }
+
     def __str__(self):
         return (
             f"Formato '{self.nombre}': {self.total_bits} bits\n"

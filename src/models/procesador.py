@@ -1,4 +1,3 @@
-import formatoInstruccion
 
 """
 Un procesador tiene las siguientes cosas:
@@ -61,22 +60,24 @@ class Procesador:
         self.codigo = codigo
 
     def toDict(self):
-        return (f"Procesador: {self.nombre}, "
-                f"Tamaño Palabra: {self.tamano_palabra},"
-                f"Dist. Memorias: {self.distribucion_memorias}, "
-                f"Profundidad: {self.profundidad}, "
-                f"Ancho: {self.ancho}, "
-                f"Tamaño Min. Dir: {self.tamano_minimo_direccionable}, "
-                f"MapMem: {self.mapeo_memoria}, "
-                f"Aumento PC: {self.aumento_pc}, "
-                f"Endianess: {self.endianess}, "
-                f"Set de Instrucción: {len(self.set_de_instrucciones)}, "
-                f"Formato de Sintaxis: {len(self.formato_de_sintaxis)}, "
-                f"Código: {len(self.codigo)}")
+        return {
+            "nombre": self.nombre,
+            "tamano_palabra": self.tamano_palabra,
+            "distribucion_memorias": self.distribucion_memorias,
+            "profundidad": self.profundidad,
+            "ancho": self.ancho,
+            "tamano_minimo_direccionable": self.tamano_minimo_direccionable,
+            "mapeo_memoria": self.mapeo_memoria,
+            "aumento_pc": self.aumento_pc,
+            "endianess": self.endianess,
+            "formato_de_sintaxis": self.formato_de_sintaxis,  # Asegúrate que sean datos serializables
+            "set de instrucciones": [i.toDict() for i in self.set_de_instrucciones],
+            "codigo": self.codigo
+        }
 
-    def guardarEnJSON(self):
-        with open("procesador.json", "w", encoding="utf-8") as f:
-            json.dump(Procesador.toDict(), f, indent = 4)
+    def guardarEnJSON(self, ruta = "procesador.json"):
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump(self.toDict(), f, indent = 4)
 
     def __str__(self):
         return (f"Procesador: {self.nombre}, Tamaño Palabra: {self.tamano_palabra}, "

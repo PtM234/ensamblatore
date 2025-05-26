@@ -1,0 +1,57 @@
+{
+    "nombre": "MiCPU",
+    "tamano_palabra": 16,
+    "distribucion_memorias": "Harvard",
+    "profundidad": 1024,
+    "ancho": 8,
+    "tamano_minimo_direccionable": 1,
+    "mapeo_memoria": 4096,
+    "aumento_pc": 2,
+    "endianess": "Little",
+    "formato_de_sintaxis": [
+        {
+            "nombre": "R-Type",
+            "total_bits": 16,
+            "bits_opcode": 4,
+            "campos_operandos": [
+                [
+                    "reg1",
+                    4
+                ],
+                [
+                    "reg2",
+                    4
+                ],
+                [
+                    "reg3",
+                    4
+                ]
+            ]
+        }
+    ],
+    "set de instrucciones": [
+        {
+            "Mnemonico": "ADD",
+            "Nombre": "Suma",
+            "Descripcion": "Suma dos registros",
+            "regex": "^ADD R[0-9]+, R[0-9]+, R[0-9]+$",
+            "Sintaxis": "ADD reg1, reg2, reg3",
+            "Constantes": [
+                [
+                    "R1",
+                    "R2"
+                ]
+            ],
+            "Variables relacionadas": [
+                [
+                    "reg1",
+                    "reg2",
+                    "reg3"
+                ]
+            ]
+        }
+    ],
+    "codigo": [
+        "ADD R1, R2, R3"
+    ]
+}
