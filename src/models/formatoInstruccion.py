@@ -5,6 +5,7 @@ class FormatoDeInstruccion:
         self.total_bits = total_bits           # Longitud total de la instrucción
         self.bits_opcode = bits_opcode         # Cuántos bits ocupa el opcode
         self.campos_operandos = campos_operandos  # Lista de tuplas (nombre_operando, cantidad_bits)
+        #Este es un comentario de prueba para ver si me deja hacer push
 
     def toDict(self):
         return {
