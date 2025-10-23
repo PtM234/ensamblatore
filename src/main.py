@@ -1,6 +1,6 @@
 from models.procesador import Procesador
 from models.instruccion import Instruccion
-from models.formatoInstruccion import FormatoDeInstruccion
+from models.formato_instruccion import FormatoDeInstruccion
 
 def main():
 
