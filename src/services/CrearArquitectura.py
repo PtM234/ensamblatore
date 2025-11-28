@@ -151,10 +151,10 @@ class VentanaCrearArquitectura:
 
                 self.ventana.destroy()  # Cerramos la ventana actual
 
-                if respuesta:  # Si dijo que SÍ
-                    # Le decimos al controlador que abra la siguiente pantalla
-                    # y le pasamos el objeto 'nuevo_procesador'
-                    self.controlador.abrir_set_instrucciones(nuevo_procesador)
+                if respuesta:
+                    # ANTES: self.controlador.abrir_set_instrucciones(nuevo_procesador)
+                    # AHORA: Vamos primero a crear formatos
+                    self.controlador.abrir_crear_formatos(nuevo_procesador)
 
             # Si cancela, simplemente no hacemos nada y la ventana sigue abierta
 

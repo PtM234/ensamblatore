@@ -1,9 +1,9 @@
 import tkinter as tk
 from services.PantallaInicio import PantallaInicio
 from services.CrearArquitectura import VentanaCrearArquitectura
-# 1. IMPORTANTE: Importamos la nueva ventana aquí abajo
+# --- AQUÍ FALTABA ESTA IMPORTACIÓN ---
+from services.CrearFormatos import VentanaCrearFormatos
 from services.CrearSetInstrucciones import VentanaCrearSetInstrucciones
-
 
 class Application:
     def __init__(self, root):
@@ -25,11 +25,14 @@ class Application:
         """Abre la ventana para crear el procesador"""
         VentanaCrearArquitectura(self.root, controlador=self)
 
-    # 2. IMPORTANTE: Esta es la función que te faltaba
-    def abrir_set_instrucciones(self, procesador_creado):
-        """Abre la ventana para definir instrucciones, pasando el objeto procesador"""
-        VentanaCrearSetInstrucciones(self.root, controlador=self, procesador=procesador_creado)
+    def abrir_crear_formatos(self, procesador_creado):
+        """Paso 2: Definir formatos"""
+        # Ahora sí funcionará porque ya importamos la clase arriba
+        VentanaCrearFormatos(self.root, controlador=self, procesador=procesador_creado)
 
+    def abrir_set_instrucciones(self, procesador_creado):
+        """Paso 3: Definir instrucciones"""
+        VentanaCrearSetInstrucciones(self.root, controlador=self, procesador=procesador_creado)
 
 if __name__ == "__main__":
     root = tk.Tk()
