@@ -23,6 +23,13 @@ class PantallaInicio(ttk.Frame):
         )
         btn_crear.pack(pady=10, fill="x")
 
+        btn_modificar = ttk.Button(
+            botones_frame,
+            text="Modificar una arquitectura",
+            # AQUI CONECTAMOS LA FUNCIÓN
+            command=self.controlador.cargar_arquitectura
+        )
+        btn_modificar.pack(pady=10, fill="x")
+
         # Otros botones (sin función por ahora)
-        ttk.Button(botones_frame, text="Modificar una arquitectura").pack(pady=10, fill="x")
         ttk.Button(botones_frame, text="Abrir archivo y escribir código").pack(pady=10, fill="x")
