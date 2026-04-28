@@ -21,6 +21,10 @@ class Procesador:
         self.set_de_instrucciones = set_de_instrucciones if set_de_instrucciones is not None else []
         self.codigo = codigo if codigo is not None else []
 
+        # Ruta donde se guardó el archivo por última vez.
+        # No se serializa al JSON — es solo para uso interno en sesión.
+        self.ruta_archivo = None
+
     def agregarFormatoDeSintaxis(self, formato_de_sintaxis):
         self.formato_de_sintaxis = formato_de_sintaxis
 
@@ -42,18 +46,29 @@ class Procesador:
             "aumento_pc": self.aumento_pc,
             "endianess": self.endianess,
             "formato_de_sintaxis": self.formato_de_sintaxis,
-            # Verificamos si los objetos tienen método toDict antes de llamarlo
-            "set de instrucciones": [i.toDict() if hasattr(i, 'toDict') else i for i in self.set_de_instrucciones],
+            # CORREGIDO: clave sin espacios para evitar errores sutiles
+            "set_de_instrucciones": [
+                i.toDict() if hasattr(i, 'toDict') else i
+                for i in self.set_de_instrucciones
+            ],
             "codigo": self.codigo
         }
 
     def guardarEnJSON(self, ruta="procesador.json"):
+        """Guarda el procesador en la ruta indicada y la recuerda para usos futuros."""
+        self.ruta_archivo = ruta
         with open(ruta, "w", encoding="utf-8") as f:
-            json.dump(self.toDict(), f, indent=4)
+            json.dump(self.toDict(), f, indent=4, ensure_ascii=False)
 
     @classmethod
     def fromDict(cls, d):
-        """Crea una instancia de Procesador a partir de un diccionario (JSON loaded)"""
+        """
+        Crea una instancia de Procesador a partir de un diccionario (JSON loaded).
+        Compatible con JSONs antiguos que usaban la clave "set de instrucciones" (con espacios).
+        """
+        # CORREGIDO: busca primero la clave nueva; si no existe, busca la clave vieja
+        set_instrucciones = d.get("set_de_instrucciones", d.get("set de instrucciones", []))
+
         nuevo_proc = cls(
             nombre=d["nombre"],
             tamano_palabra=d["tamano_palabra"],
@@ -64,11 +79,11 @@ class Procesador:
             mapeo_memoria=d["mapeo_memoria"],
             aumento_pc=d["aumento_pc"],
             endianess=d["endianess"],
-            formato_de_sintaxis=d["formato_de_sintaxis"],
-            set_de_instrucciones=d.get("set de instrucciones", []),  # Usamos .get por seguridad
+            formato_de_sintaxis=d.get("formato_de_sintaxis", []),
+            set_de_instrucciones=set_instrucciones,
             codigo=d.get("codigo", [])
         )
         return nuevo_proc
 
     def __str__(self):
-        return (f"Procesador: {self.nombre}, Palabra: {self.tamano_palabra} bits")
+        return f"Procesador: {self.nombre}, Palabra: {self.tamano_palabra} bits"

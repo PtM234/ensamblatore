@@ -1,8 +1,6 @@
 # src/services/CrearArquitectura.py
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
-from tkinter import filedialog  # <--- IMPORTANTE: Para abrir el explorador de archivos
+from tkinter import ttk, messagebox, filedialog
 from models.procesador import Procesador
 
 
@@ -10,7 +8,6 @@ class VentanaCrearArquitectura:
     def __init__(self, parent, controlador):
         self.controlador = controlador
 
-        # --- Configuración de la Ventana ---
         self.ventana = tk.Toplevel(parent)
         self.ventana.title("Nueva Arquitectura - Ensamblatore")
         self.ventana.geometry("550x650")
@@ -20,11 +17,8 @@ class VentanaCrearArquitectura:
         self._construir_interfaz()
 
     def _construir_interfaz(self):
-        # Frame principal
         main_frame = ttk.Frame(self.ventana, padding="20")
         main_frame.pack(expand=True, fill="both")
-
-        # Configurar columnas
         main_frame.columnconfigure(1, weight=1)
 
         # --- 1. Nombre ---
@@ -88,15 +82,11 @@ class VentanaCrearArquitectura:
         btn_frame.grid(row=10, column=0, columnspan=2)
 
         ttk.Button(btn_frame, text="Cancelar", command=self.ventana.destroy).pack(side="left", padx=10)
-        # Cambiamos el texto del botón para que sea claro que se abrirá un diálogo
         ttk.Button(btn_frame, text="Guardar en...", command=self.guardar_datos).pack(side="right", padx=10)
 
     def guardar_datos(self):
-        """
-        Valida los datos, crea el objeto y abre el diálogo 'Guardar como'.
-        """
+        """Valida los datos, crea el objeto y abre el diálogo 'Guardar como'."""
         try:
-            # 1. Validación y Conversión (Igual que antes)
             nombre = self.nombre_entry.get()
             if not nombre:
                 raise ValueError("El nombre no puede estar vacío.")
@@ -116,7 +106,6 @@ class VentanaCrearArquitectura:
             aumento_pc = int(self.aumento_pc_spin.get())
             endianness = self.endianness_combo.get()
 
-            # 2. Creación del Objeto Procesador
             nuevo_procesador = Procesador(
                 nombre=nombre,
                 tamano_palabra=tamano_palabra,
@@ -129,9 +118,6 @@ class VentanaCrearArquitectura:
                 endianess=endianness
             )
 
-            # ... (código anterior de validación y creación del objeto) ...
-
-            # 3. ABRIR EL DIÁLOGO DE GUARDADO
             archivo_guardado = filedialog.asksaveasfilename(
                 title="Guardar Arquitectura",
                 defaultextension=".json",
@@ -140,23 +126,19 @@ class VentanaCrearArquitectura:
             )
 
             if archivo_guardado:
+                # guardarEnJSON ahora también guarda la ruta en procesador.ruta_archivo
                 nuevo_procesador.guardarEnJSON(archivo_guardado)
 
-                # --- CAMBIO IMPORTANTE AQUÍ ---
-                # Preguntamos si quiere continuar a definir instrucciones
+                # CORREGIDO: el mensaje ahora describe correctamente el siguiente paso
                 respuesta = messagebox.askyesno(
                     "Arquitectura Guardada",
-                    f"Se guardó '{nombre}'.\n¿Deseas definir el Set de Instrucciones ahora?"
+                    f"Se guardó '{nombre}'.\n¿Deseas definir los Formatos de Instrucción ahora?"
                 )
 
-                self.ventana.destroy()  # Cerramos la ventana actual
+                self.ventana.destroy()
 
                 if respuesta:
-                    # ANTES: self.controlador.abrir_set_instrucciones(nuevo_procesador)
-                    # AHORA: Vamos primero a crear formatos
                     self.controlador.abrir_crear_formatos(nuevo_procesador)
-
-            # Si cancela, simplemente no hacemos nada y la ventana sigue abierta
 
         except ValueError as ve:
             messagebox.showerror("Error de validación", f"Por favor verifica los datos numéricos.\nDetalle: {ve}")
