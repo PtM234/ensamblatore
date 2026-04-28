@@ -10,7 +10,7 @@ class VentanaCrearArquitectura:
 
         self.ventana = tk.Toplevel(parent)
         self.ventana.title("Nueva Arquitectura - Ensamblatore")
-        self.ventana.geometry("550x650")
+        self.ventana.geometry("550x750")
         self.ventana.transient(parent)
         self.ventana.grab_set()
 
@@ -75,11 +75,30 @@ class VentanaCrearArquitectura:
         self.endianness_combo.set("Little Endian")
         self.endianness_combo.grid(row=8, column=1, sticky="ew", padx=5)
 
+        # --- 10. Prefijo de Registro ---
+        ttk.Separator(main_frame, orient='horizontal').grid(row=9, column=0, columnspan=2, sticky="ew", pady=10)
+        ttk.Label(main_frame, text="Registros", font=("Arial", 10, "bold")).grid(
+            row=10, column=0, columnspan=2, sticky="w", pady=(0, 5))
+
+        ttk.Label(main_frame, text="Prefijo de registro:").grid(row=11, column=0, sticky="w", pady=5)
+        self.prefijo_entry = ttk.Entry(main_frame)
+        self.prefijo_entry.insert(0, "x")
+        self.prefijo_entry.grid(row=11, column=1, sticky="ew", padx=5)
+
+        ttk.Label(main_frame, text="  ej: x → x0, x1 ... xN", foreground="gray").grid(
+            row=12, column=1, sticky="w", padx=5)
+
+        # --- 11. Número de Registros ---
+        ttk.Label(main_frame, text="Número de registros:").grid(row=13, column=0, sticky="w", pady=5)
+        self.num_reg_spin = ttk.Spinbox(main_frame, from_=2, to=256, increment=1)
+        self.num_reg_spin.set(32)
+        self.num_reg_spin.grid(row=13, column=1, sticky="ew", padx=5)
+
         # --- BOTONES ---
-        ttk.Separator(main_frame, orient='horizontal').grid(row=9, column=0, columnspan=2, sticky="ew", pady=20)
+        ttk.Separator(main_frame, orient='horizontal').grid(row=14, column=0, columnspan=2, sticky="ew", pady=20)
 
         btn_frame = ttk.Frame(main_frame)
-        btn_frame.grid(row=10, column=0, columnspan=2)
+        btn_frame.grid(row=15, column=0, columnspan=2)
 
         ttk.Button(btn_frame, text="Cancelar", command=self.ventana.destroy).pack(side="left", padx=10)
         ttk.Button(btn_frame, text="Guardar en...", command=self.guardar_datos).pack(side="right", padx=10)
@@ -87,24 +106,26 @@ class VentanaCrearArquitectura:
     def guardar_datos(self):
         """Valida los datos, crea el objeto y abre el diálogo 'Guardar como'."""
         try:
-            nombre = self.nombre_entry.get()
+            nombre = self.nombre_entry.get().strip()
             if not nombre:
                 raise ValueError("El nombre no puede estar vacío.")
 
-            tamano_palabra = int(self.palabra_entry.get())
-            distribucion = self.distribucion_combo.get()
-            profundidad = int(self.profundidad_entry.get())
-            ancho = int(self.ancho_entry.get())
-            min_dir = int(self.min_dir_entry.get())
+            tamano_palabra  = int(self.palabra_entry.get())
+            distribucion    = self.distribucion_combo.get()
+            profundidad     = int(self.profundidad_entry.get())
+            ancho           = int(self.ancho_entry.get())
+            min_dir         = int(self.min_dir_entry.get())
 
             mapeo_raw = self.mapeo_entry.get()
-            if "0x" in mapeo_raw.lower():
-                mapeo_memoria = int(mapeo_raw, 16)
-            else:
-                mapeo_memoria = int(mapeo_raw)
+            mapeo_memoria = int(mapeo_raw, 16) if "0x" in mapeo_raw.lower() else int(mapeo_raw)
 
-            aumento_pc = int(self.aumento_pc_spin.get())
-            endianness = self.endianness_combo.get()
+            aumento_pc  = int(self.aumento_pc_spin.get())
+            endianness  = self.endianness_combo.get()
+
+            prefijo     = self.prefijo_entry.get().strip()
+            if not prefijo:
+                raise ValueError("El prefijo de registro no puede estar vacío.")
+            num_registros = int(self.num_reg_spin.get())
 
             nuevo_procesador = Procesador(
                 nombre=nombre,
@@ -115,7 +136,9 @@ class VentanaCrearArquitectura:
                 tamano_minimo_direccionable=min_dir,
                 mapeo_memoria=mapeo_memoria,
                 aumento_pc=aumento_pc,
-                endianess=endianness
+                endianess=endianness,
+                prefijo_registro=prefijo,
+                num_registros=num_registros
             )
 
             archivo_guardado = filedialog.asksaveasfilename(
@@ -126,10 +149,8 @@ class VentanaCrearArquitectura:
             )
 
             if archivo_guardado:
-                # guardarEnJSON ahora también guarda la ruta en procesador.ruta_archivo
                 nuevo_procesador.guardarEnJSON(archivo_guardado)
 
-                # CORREGIDO: el mensaje ahora describe correctamente el siguiente paso
                 respuesta = messagebox.askyesno(
                     "Arquitectura Guardada",
                     f"Se guardó '{nombre}'.\n¿Deseas definir los Formatos de Instrucción ahora?"
@@ -141,6 +162,6 @@ class VentanaCrearArquitectura:
                     self.controlador.abrir_crear_formatos(nuevo_procesador)
 
         except ValueError as ve:
-            messagebox.showerror("Error de validación", f"Por favor verifica los datos numéricos.\nDetalle: {ve}")
+            messagebox.showerror("Error de validación", f"Por favor verifica los datos.\nDetalle: {ve}")
         except Exception as e:
             messagebox.showerror("Error", f"Ocurrió un error inesperado: {e}")

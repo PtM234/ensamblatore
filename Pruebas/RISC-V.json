@@ -1,0 +1,628 @@
+{
+    "nombre": "RISC-V",
+    "tamano_palabra": 32,
+    "distribucion_memorias": "Von Neumann",
+    "profundidad": 4096,
+    "ancho": 8,
+    "tamano_minimo_direccionable": 8,
+    "mapeo_memoria": 0,
+    "aumento_pc": 4,
+    "endianess": "Little Endian",
+    "prefijo_registro": "x",
+    "num_registros": 32,
+    "formato_de_sintaxis": [
+        {
+            "nombre": "Tipo-R",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "rd",
+                    5
+                ],
+                [
+                    "funct3",
+                    3
+                ],
+                [
+                    "rs1",
+                    5
+                ],
+                [
+                    "rs2",
+                    5
+                ],
+                [
+                    "funct7",
+                    7
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-I",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "rd",
+                    5
+                ],
+                [
+                    "funct3",
+                    3
+                ],
+                [
+                    "rs1",
+                    5
+                ],
+                [
+                    "imm",
+                    12
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-S",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "imm_lo",
+                    5
+                ],
+                [
+                    "funct3",
+                    3
+                ],
+                [
+                    "rs1",
+                    5
+                ],
+                [
+                    "rs2",
+                    5
+                ],
+                [
+                    "imm_hi",
+                    7
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-U",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "rd",
+                    5
+                ],
+                [
+                    "imm",
+                    20
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-J",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "rd",
+                    5
+                ],
+                [
+                    "imm",
+                    20
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-B",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                {
+                    "nombre": "funct3",
+                    "bits": 3,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2
+                    }
+                },
+                {
+                    "nombre": "rs1",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
+                    }
+                },
+                {
+                    "nombre": "rs2",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
+                    }
+                },
+                {
+                    "nombre": "imm_lo",
+                    "bits": 5,
+                    "orden_bits": {
+                        "1": 0,
+                        "2": 1,
+                        "3": 2,
+                        "4": 3,
+                        "11": 4
+                    }
+                },
+                {
+                    "nombre": "imm_hi",
+                    "bits": 7,
+                    "orden_bits": {
+                        "5": 0,
+                        "6": 1,
+                        "7": 2,
+                        "8": 3,
+                        "9": 4,
+                        "10": 5,
+                        "12": 6
+                    }
+                }
+            ]
+        }
+    ],
+    "set_de_instrucciones": [
+        {
+            "mnemonico": "ADD",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Suma entre registros",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "SUB",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Resta entre registros",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0100000"
+            }
+        },
+        {
+            "mnemonico": "AND",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "AND lógico",
+            "campos": {
+                "rd": "",
+                "funct3": "111",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "OR",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "OR lógico",
+            "campos": {
+                "rd": "",
+                "funct3": "110",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "XOR",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "XOR lógico",
+            "campos": {
+                "rd": "",
+                "funct3": "100",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "SLL",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Shift left lógico",
+            "campos": {
+                "rd": "",
+                "funct3": "001",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "SRL",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Shift right lógico",
+            "campos": {
+                "rd": "",
+                "funct3": "101",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "SRA",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Shift right aritmético",
+            "campos": {
+                "rd": "",
+                "funct3": "101",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0100000"
+            }
+        },
+        {
+            "mnemonico": "SLT",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Set if less than",
+            "campos": {
+                "rd": "",
+                "funct3": "010",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "SLTU",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Set if less than sin signo",
+            "campos": {
+                "rd": "",
+                "funct3": "011",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000000"
+            }
+        },
+        {
+            "mnemonico": "ADDI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Suma con inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "ANDI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "AND con inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "111",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "ORI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "OR con inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "110",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "XORI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "XOR con inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "100",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "SLTI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Set if less than inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "010",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "SLLI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Shift left inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "001",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "SRLI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Shift right lógico inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "101",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "SRAI",
+            "opcode": "0010011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Shift right aritmético inmediato",
+            "campos": {
+                "rd": "",
+                "funct3": "101",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "LW",
+            "opcode": "0000011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, imm(rs1)",
+            "descripcion": "Load word",
+            "campos": {
+                "rd": "",
+                "funct3": "010",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "LH",
+            "opcode": "0000011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, imm(rs1)",
+            "descripcion": "Load halfword",
+            "campos": {
+                "rd": "",
+                "funct3": "001",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "LB",
+            "opcode": "0000011",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, imm(rs1)",
+            "descripcion": "Load byte",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "JALR",
+            "opcode": "1100111",
+            "formato": "Tipo-I",
+            "mapeo_operandos": "rd, rs1, imm",
+            "descripcion": "Jump and link register",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "SW",
+            "opcode": "0100011",
+            "formato": "Tipo-S",
+            "mapeo_operandos": "rs2, imm(rs1)",
+            "descripcion": "Store word",
+            "campos": {
+                "imm_lo": "",
+                "funct3": "010",
+                "rs1": "",
+                "rs2": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "SH",
+            "opcode": "0100011",
+            "formato": "Tipo-S",
+            "mapeo_operandos": "rs2, imm(rs1)",
+            "descripcion": "Store halfword",
+            "campos": {
+                "imm_lo": "",
+                "funct3": "001",
+                "rs1": "",
+                "rs2": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "SB",
+            "opcode": "0100011",
+            "formato": "Tipo-S",
+            "mapeo_operandos": "rs2, imm(rs1)",
+            "descripcion": "Store byte",
+            "campos": {
+                "imm_lo": "",
+                "funct3": "000",
+                "rs1": "",
+                "rs2": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "BEQ",
+            "opcode": "1100011",
+            "formato": "Tipo-B",
+            "mapeo_operandos": "rs1, rs2, imm",
+            "descripcion": "Branch if equal",
+            "campos": {
+                "funct3": "000",
+                "rs1": "",
+                "rs2": "",
+                "imm_lo": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "BNE",
+            "opcode": "1100011",
+            "formato": "Tipo-B",
+            "mapeo_operandos": "rs1, rs2, imm",
+            "descripcion": "Branch if not equal",
+            "campos": {
+                "funct3": "001",
+                "rs1": "",
+                "rs2": "",
+                "imm_lo": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "BLT",
+            "opcode": "1100011",
+            "formato": "Tipo-B",
+            "mapeo_operandos": "rs1, rs2, imm",
+            "descripcion": "Branch if less than",
+            "campos": {
+                "funct3": "100",
+                "rs1": "",
+                "rs2": "",
+                "imm_lo": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "BGE",
+            "opcode": "1100011",
+            "formato": "Tipo-B",
+            "mapeo_operandos": "rs1, rs2, imm",
+            "descripcion": "Branch if greater or equal",
+            "campos": {
+                "funct3": "101",
+                "rs1": "",
+                "rs2": "",
+                "imm_lo": "",
+                "imm_hi": ""
+            }
+        },
+        {
+            "mnemonico": "LUI",
+            "opcode": "0110111",
+            "formato": "Tipo-U",
+            "mapeo_operandos": "rd, imm",
+            "descripcion": "Load upper immediate",
+            "campos": {
+                "rd": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "AUIPC",
+            "opcode": "0010111",
+            "formato": "Tipo-U",
+            "mapeo_operandos": "rd, imm",
+            "descripcion": "Add upper immediate to PC",
+            "campos": {
+                "rd": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "JAL",
+            "opcode": "1101111",
+            "formato": "Tipo-J",
+            "mapeo_operandos": "rd, imm",
+            "descripcion": "Jump and link",
+            "campos": {
+                "rd": "",
+                "imm": ""
+            }
+        },
+        {
+            "mnemonico": "MUL",
+            "opcode": "0110011",
+            "formato": "Tipo-R",
+            "mapeo_operandos": "rd, rs1, rs2",
+            "descripcion": "Multiplicación entre registros",
+            "campos": {
+                "rd": "",
+                "funct3": "000",
+                "rs1": "",
+                "rs2": "",
+                "funct7": "0000001"
+            }
+        }
+    ],
+    "codigo": []
+}

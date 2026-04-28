@@ -2,15 +2,17 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import re
+import os
+from models.ensamblador import Ensamblador, ErrorDeEnsamblado
 
 
 class VentanaIDE:
     def __init__(self, parent, controlador, procesador):
         self.controlador = controlador
         self.procesador = procesador
-        self.ruta_asm = None  # Ruta del archivo .asm activo (None = sin guardar)
+        self.ruta_asm = None
+        self._hay_cambios = False
 
-        # Extraemos los mnemónicos del procesador para el resaltado
         self.mnemonicos = {
             inst.get("mnemonico", "").upper()
             for inst in procesador.set_de_instrucciones
@@ -19,24 +21,21 @@ class VentanaIDE:
 
         self.ventana = tk.Toplevel(parent)
         self.ventana.title(f"IDE — {procesador.nombre}")
-        self.ventana.geometry("900x650")
+        self.ventana.geometry("900x700")
         self.ventana.transient(parent)
-
-        # Confirmar cierre si hay cambios sin guardar
         self.ventana.protocol("WM_DELETE_WINDOW", self._confirmar_cierre)
-
-        self._hay_cambios = False  # Flag para detectar cambios sin guardar
 
         self._construir_interfaz()
         self._actualizar_titulo()
 
     # ─────────────────────────────────────────────
-    #  CONSTRUCCIÓN DE LA INTERFAZ
+    #  CONSTRUCCIÓN
     # ─────────────────────────────────────────────
 
     def _construir_interfaz(self):
         self._construir_toolbar()
         self._construir_editor()
+        self._construir_consola()
         self._construir_statusbar()
 
     def _construir_toolbar(self):
@@ -48,168 +47,145 @@ class VentanaIDE:
 
         ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
 
-        ttk.Label(
-            toolbar,
-            text=f"Procesador: {self.procesador.nombre}  |  "
-                 f"Instrucciones: {len(self.procesador.set_de_instrucciones)}  |  "
-                 f"Formatos: {len(self.procesador.formato_de_sintaxis)}"
-        ).pack(side="left", padx=4)
+        ttk.Button(toolbar, text="⚙️ Ensamblar",     command=self.ensamblar).pack(side="left", padx=4, pady=2)
+        ttk.Button(toolbar, text="📋 Instrucciones", command=self.abrir_set_instrucciones).pack(side="left", padx=4, pady=2)
+
+        ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
+
+        self.lbl_info = ttk.Label(toolbar, text=self._texto_info())
+        self.lbl_info.pack(side="left", padx=4)
 
     def _construir_editor(self):
-        """Área principal: números de línea + editor de texto."""
         frame_editor = ttk.Frame(self.ventana)
-        frame_editor.pack(expand=True, fill="both", padx=4, pady=4)
+        frame_editor.pack(expand=True, fill="both", padx=4, pady=(4, 0))
 
-        # ── Números de línea ──────────────────────────────────────────
         self.numeros = tk.Text(
-            frame_editor,
-            width=4,
-            padx=6,
-            state="disabled",
-            bg="#2b2b2b",
-            fg="#858585",
-            font=("Courier New", 11),
-            relief="flat",
-            cursor="arrow",
-            selectbackground="#2b2b2b",  # Sin selección visual
+            frame_editor, width=4, padx=6, state="disabled",
+            bg="#f0f0f0", fg="#888888", font=("Courier New", 11),
+            relief="flat", cursor="arrow", selectbackground="#f0f0f0",
         )
         self.numeros.pack(side="left", fill="y")
 
-        # ── Scrollbar vertical compartida ────────────────────────────
         scroll_v = ttk.Scrollbar(frame_editor, orient="vertical")
         scroll_v.pack(side="right", fill="y")
 
-        # ── Editor principal ─────────────────────────────────────────
         self.editor = tk.Text(
-            frame_editor,
-            undo=True,
-            wrap="none",
-            font=("Courier New", 11),
-            bg="#1e1e1e",
-            fg="#d4d4d4",
-            insertbackground="#ffffff",
-            selectbackground="#264f78",
-            relief="flat",
-            yscrollcommand=self._scroll_sincronizado,
+            frame_editor, undo=True, wrap="none",
+            font=("Courier New", 11), bg="#ffffff", fg="#000000",
+            insertbackground="#000000", selectbackground="#cce5ff",
+            relief="flat", yscrollcommand=self._scroll_sincronizado,
         )
         self.editor.pack(expand=True, fill="both")
-
-        # Conectar scrollbar con ambos widgets
         scroll_v.config(command=self._scroll_ambos)
 
-        # ── Scrollbar horizontal solo para el editor ─────────────────
         scroll_h = ttk.Scrollbar(self.ventana, orient="horizontal", command=self.editor.xview)
         scroll_h.pack(side="bottom", fill="x")
         self.editor.config(xscrollcommand=scroll_h.set)
 
-        # ── Configurar tags de color ─────────────────────────────────
         self._configurar_tags()
-
-        # ── Eventos ──────────────────────────────────────────────────
         self.editor.bind("<KeyRelease>",    self._on_key_release)
         self.editor.bind("<ButtonRelease>", self._actualizar_statusbar)
 
+    def _construir_consola(self):
+        """Panel inferior que muestra errores y resultado del ensamblado."""
+        frame_consola = ttk.LabelFrame(self.ventana, text="Consola")
+        frame_consola.pack(fill="x", padx=4, pady=(2, 4))
+
+        self.consola = tk.Text(
+            frame_consola, height=5, font=("Courier New", 10),
+            bg="#1e1e1e", fg="#d4d4d4", state="disabled",
+            relief="flat", wrap="word"
+        )
+        self.consola.pack(fill="x", padx=4, pady=4)
+
+        # Tags de color para la consola
+        self.consola.tag_configure("error",   foreground="#f44747")
+        self.consola.tag_configure("ok",      foreground="#6a9955")
+        self.consola.tag_configure("info",    foreground="#9cdcfe")
+
     def _construir_statusbar(self):
         self.statusbar = ttk.Label(
-            self.ventana,
-            text="Lín 1, Col 1",
-            anchor="e",
-            relief="sunken",
-            padding=(4, 2)
+            self.ventana, text="Lín 1, Col 1",
+            anchor="e", relief="sunken", padding=(4, 2)
         )
         self.statusbar.pack(side="bottom", fill="x")
 
     # ─────────────────────────────────────────────
-    #  TAGS DE COLOR (resaltado de sintaxis)
+    #  SET DE INSTRUCCIONES DESDE EL IDE
+    # ─────────────────────────────────────────────
+
+    def _texto_info(self):
+        prefijo = self.procesador.prefijo_registro
+        n_regs  = self.procesador.num_registros
+        return (f"Procesador: {self.procesador.nombre}  |  "
+                f"Registros: {prefijo}0–{prefijo}{n_regs - 1}  |  "
+                f"Instrucciones: {len(self.procesador.set_de_instrucciones)}")
+
+    def abrir_set_instrucciones(self):
+        """
+        Abre la ventana de set de instrucciones con el procesador actual.
+        Al cerrarla, actualiza el resaltado con los mnemónicos nuevos.
+        """
+        from services.CrearSetInstrucciones import VentanaCrearSetInstrucciones
+        ventana = VentanaCrearSetInstrucciones(
+            self.ventana, controlador=self.controlador, procesador=self.procesador
+        )
+        # Cuando la ventana de instrucciones se cierre, refrescamos
+        self.ventana.wait_window(ventana.ventana)
+        self._refrescar_mnemonicos()
+
+    def _refrescar_mnemonicos(self):
+        """
+        Actualiza el set de mnemónicos y el resaltado después de
+        modificar instrucciones sin salir del IDE.
+        """
+        self.mnemonicos = {
+            inst.get("mnemonico", "").upper()
+            for inst in self.procesador.set_de_instrucciones
+            if inst.get("mnemonico")
+        }
+        self._resaltar_sintaxis()
+        # Actualizar contador en el toolbar
+        self.lbl_info.config(text=self._texto_info())
+
+    # ─────────────────────────────────────────────
+    #  RESALTADO
     # ─────────────────────────────────────────────
 
     def _configurar_tags(self):
-        # Mnemónicos de instrucción → azul claro
-        self.editor.tag_configure("mnemonico",  foreground="#569cd6", font=("Courier New", 11, "bold"))
-        # Comentarios (;…) → verde
-        self.editor.tag_configure("comentario", foreground="#6a9955", font=("Courier New", 11, "italic"))
-        # Números (dec, 0x hex, 0b bin) → naranja claro
-        self.editor.tag_configure("numero",     foreground="#ce9178")
-        # Registros (r0..r31 / R0..R31) → verde azulado
-        self.editor.tag_configure("registro",   foreground="#4ec9b0")
-        # Etiquetas (palabra seguida de :) → amarillo
-        self.editor.tag_configure("etiqueta",   foreground="#dcdcaa")
-
-    # ─────────────────────────────────────────────
-    #  RESALTADO DE SINTAXIS
-    # ─────────────────────────────────────────────
+        self.editor.tag_configure(
+            "mnemonico", foreground="#0000cc",
+            font=("Courier New", 11, "bold")
+        )
 
     def _resaltar_sintaxis(self):
-        """Elimina todos los tags y vuelve a aplicar el resaltado en todo el documento."""
-        for tag in ("mnemonico", "comentario", "numero", "registro", "etiqueta"):
-            self.editor.tag_remove(tag, "1.0", tk.END)
-
+        self.editor.tag_remove("mnemonico", "1.0", tk.END)
         contenido = self.editor.get("1.0", tk.END)
-        lineas = contenido.split("\n")
-
-        for n_linea, linea in enumerate(lineas, start=1):
-            inicio_linea = f"{n_linea}.0"
-
-            # 1. Comentarios — todo lo que va desde ; hasta el final de línea
-            m = re.search(r";.*$", linea)
-            if m:
-                self.editor.tag_add("comentario",
-                                    f"{n_linea}.{m.start()}",
-                                    f"{n_linea}.{m.end()}")
-                # Solo resaltamos antes del comentario
-                linea = linea[:m.start()]
-
-            # 2. Etiquetas (palabras que terminan en :)
-            for m in re.finditer(r"\b(\w+)\s*:", linea):
-                self.editor.tag_add("etiqueta",
-                                    f"{n_linea}.{m.start()}",
-                                    f"{n_linea}.{m.end()}")
-
-            # 3. Mnemónicos (primera palabra de la instrucción, ignorando etiquetas)
-            #    Busca palabras que estén en el set de instrucciones del procesador
-            for m in re.finditer(r"\b([A-Za-z_]\w*)\b", linea):
+        for n_linea, linea in enumerate(contenido.split("\n"), start=1):
+            parte_codigo = linea.split(";")[0]
+            for m in re.finditer(r"\b([A-Za-z_]\w*)\b", parte_codigo):
                 if m.group(1).upper() in self.mnemonicos:
-                    self.editor.tag_add("mnemonico",
-                                        f"{n_linea}.{m.start()}",
-                                        f"{n_linea}.{m.end()}")
-
-            # 4. Registros (r0–r31, R0–R31)
-            for m in re.finditer(r"\b[Rr]\d{1,2}\b", linea):
-                self.editor.tag_add("registro",
-                                    f"{n_linea}.{m.start()}",
-                                    f"{n_linea}.{m.end()}")
-
-            # 5. Números (0x…, 0b…, decimales)
-            for m in re.finditer(r"\b(0x[0-9A-Fa-f]+|0b[01]+|\d+)\b", linea):
-                self.editor.tag_add("numero",
-                                    f"{n_linea}.{m.start()}",
-                                    f"{n_linea}.{m.end()}")
+                    self.editor.tag_add(
+                        "mnemonico",
+                        f"{n_linea}.{m.start()}",
+                        f"{n_linea}.{m.end()}"
+                    )
 
     # ─────────────────────────────────────────────
-    #  NUMERACIÓN DE LÍNEAS
+    #  NUMERACIÓN Y SCROLL
     # ─────────────────────────────────────────────
 
     def _actualizar_numeros(self):
-        """Redibuja el panel de números de línea."""
         self.numeros.config(state="normal")
         self.numeros.delete("1.0", tk.END)
-
-        total_lineas = int(self.editor.index(tk.END).split(".")[0])
-        numeracion = "\n".join(str(i) for i in range(1, total_lineas))
-        self.numeros.insert("1.0", numeracion)
-
+        total = int(self.editor.index(tk.END).split(".")[0])
+        self.numeros.insert("1.0", "\n".join(str(i) for i in range(1, total)))
         self.numeros.config(state="disabled")
 
-    # ─────────────────────────────────────────────
-    #  SCROLL SINCRONIZADO
-    # ─────────────────────────────────────────────
-
     def _scroll_sincronizado(self, *args):
-        """Mueve la scrollbar y sincroniza los números de línea."""
         self.numeros.yview_moveto(args[0])
 
     def _scroll_ambos(self, *args):
-        """Desplaza editor y números al mismo tiempo."""
         self.editor.yview(*args)
         self.numeros.yview(*args)
 
@@ -230,28 +206,135 @@ class VentanaIDE:
         self.statusbar.config(text=f"Lín {linea}, Col {int(col) + 1}")
 
     def _actualizar_titulo(self):
-        nombre_archivo = self.ruta_asm if self.ruta_asm else "Sin guardar"
+        nombre  = self.ruta_asm if self.ruta_asm else "Sin guardar"
         cambios = " •" if self._hay_cambios else ""
-        self.ventana.title(f"IDE — {self.procesador.nombre}  |  {nombre_archivo}{cambios}")
+        self.ventana.title(f"IDE — {self.procesador.nombre}  |  {nombre}{cambios}")
 
     # ─────────────────────────────────────────────
-    #  GUARDAR
+    #  CONSOLA
+    # ─────────────────────────────────────────────
+
+    def _log(self, texto, tag="info"):
+        self.consola.config(state="normal")
+        self.consola.insert(tk.END, texto + "\n", tag)
+        self.consola.see(tk.END)
+        self.consola.config(state="disabled")
+
+    def _limpiar_consola(self):
+        self.consola.config(state="normal")
+        self.consola.delete("1.0", tk.END)
+        self.consola.config(state="disabled")
+
+    # ─────────────────────────────────────────────
+    #  ENSAMBLAR
+    # ─────────────────────────────────────────────
+
+    def ensamblar(self):
+        """
+        Ensambla el código del editor y ofrece guardar los archivos de salida.
+        """
+        self._limpiar_consola()
+        codigo = self.editor.get("1.0", tk.END).strip()
+
+        if not codigo:
+            self._log("⚠  El editor está vacío.", "error")
+            return
+
+        ensamblador = Ensamblador(self.procesador)
+
+        try:
+            binarios = ensamblador.ensamblar(codigo)
+        except ErrorDeEnsamblado as e:
+            self._log(f"✗  Error: {e}", "error")
+            return
+        except Exception as e:
+            self._log(f"✗  Error inesperado: {e}", "error")
+            return
+
+        n = len(binarios)
+        self._log(f"✔  Ensamblado exitoso — {n} instrucción(es).", "ok")
+
+        # Mostrar las instrucciones en la consola
+        direccion = self.procesador.mapeo_memoria
+        paso = self.procesador.aumento_pc
+        for b in binarios:
+            hex_val = f"{int(b, 2):08X}"
+            self._log(f"   0x{direccion:08X}  {b}  ({hex_val})", "info")
+            direccion += paso
+
+        # Preguntar dónde guardar
+        self._guardar_salida(ensamblador)
+
+    def _guardar_salida(self, ensamblador: Ensamblador):
+        """Abre diálogo para elegir formato y ruta de salida."""
+        # Ventana de selección de formato
+        dialogo = tk.Toplevel(self.ventana)
+        dialogo.title("Guardar salida")
+        dialogo.geometry("300x200")
+        dialogo.transient(self.ventana)
+        dialogo.grab_set()
+
+        ttk.Label(dialogo, text="Selecciona el formato de salida:",
+                  font=("Arial", 11)).pack(pady=15)
+
+        var = tk.StringVar(value="bin")
+        for texto, valor in [(".bin  — Binario puro", "bin"),
+                              (".mem  — Hex para $readmemh", "mem"),
+                              (".coe  — Xilinx Block RAM", "coe")]:
+            ttk.Radiobutton(dialogo, text=texto, variable=var,
+                            value=valor).pack(anchor="w", padx=30)
+
+        def confirmar():
+            fmt = var.get()
+            dialogo.destroy()
+            self._exportar(ensamblador, fmt)
+
+        ttk.Button(dialogo, text="Guardar…", command=confirmar).pack(pady=15)
+
+    def _exportar(self, ensamblador: Ensamblador, fmt: str):
+        nombre_base = os.path.splitext(
+            os.path.basename(self.ruta_asm)
+        )[0] if self.ruta_asm else self.procesador.nombre
+
+        ruta = filedialog.asksaveasfilename(
+            title="Guardar archivo ensamblado",
+            defaultextension=f".{fmt}",
+            initialfile=f"{nombre_base}.{fmt}",
+            filetypes=[(f"Archivo .{fmt}", f"*.{fmt}"), ("Todos", "*.*")]
+        )
+
+        if not ruta:
+            return
+
+        try:
+            if fmt == "bin":
+                ensamblador.generar_bin(ruta)
+            elif fmt == "mem":
+                ensamblador.generar_mem(ruta)
+            elif fmt == "coe":
+                ensamblador.generar_coe(ruta)
+            self._log(f"✔  Guardado en: {ruta}", "ok")
+        except Exception as e:
+            self._log(f"✗  Error al guardar: {e}", "error")
+
+    # ─────────────────────────────────────────────
+    #  GUARDAR .ASM
     # ─────────────────────────────────────────────
 
     def guardar(self):
-        """Guarda en la ruta actual; si no hay ruta, abre el diálogo."""
         if self.ruta_asm:
             self._escribir_archivo(self.ruta_asm)
         else:
             self.guardar_como()
 
     def guardar_como(self):
-        """Abre el diálogo 'Guardar como' para elegir ruta y nombre."""
         ruta = filedialog.asksaveasfilename(
             title="Guardar código ensamblador",
             defaultextension=".asm",
             initialfile=f"{self.procesador.nombre}.asm",
-            filetypes=[("Archivos ensamblador", "*.asm"), ("Archivos de texto", "*.txt"), ("Todos", "*.*")]
+            filetypes=[("Archivos ensamblador", "*.asm"),
+                       ("Archivos de texto", "*.txt"),
+                       ("Todos", "*.*")]
         )
         if ruta:
             self.ruta_asm = ruta
@@ -265,7 +348,7 @@ class VentanaIDE:
             self._hay_cambios = False
             self._actualizar_titulo()
         except Exception as e:
-            messagebox.showerror("Error al guardar", f"No se pudo guardar el archivo:\n{e}")
+            messagebox.showerror("Error al guardar", f"No se pudo guardar:\n{e}")
 
     # ─────────────────────────────────────────────
     #  CIERRE SEGURO
@@ -273,15 +356,14 @@ class VentanaIDE:
 
     def _confirmar_cierre(self):
         if self._hay_cambios:
-            respuesta = messagebox.askyesnocancel(
+            r = messagebox.askyesnocancel(
                 "Cambios sin guardar",
                 "Tienes cambios sin guardar.\n¿Deseas guardar antes de cerrar?"
             )
-            if respuesta is True:
+            if r is True:
                 self.guardar()
                 self.ventana.destroy()
-            elif respuesta is False:
+            elif r is False:
                 self.ventana.destroy()
-            # Si es None (Cancel), no hacemos nada
         else:
             self.ventana.destroy()

@@ -1,0 +1,17 @@
+factorial:
+    addi x2, x2, -8
+    sw   x10, 4(x2)
+    sw   x1,  0(x2)
+    addi x5,  x0, 1
+    blt  x5,  x10, else
+    addi x10, x0, 1
+    addi x2,  x2, 8
+    jalr x0,  x1, 0
+else:
+    addi x10, x10, -1
+    jal  x1,  factorial
+    lw   x6,  4(x2)
+    lw   x1,  0(x2)
+    addi x2,  x2, 8
+    mul  x10, x10, x6
+    jalr x0,  x1, 0
