@@ -5,13 +5,14 @@ from models.formato_instruccion import FormatoDeInstruccion
 
 
 class VentanaCrearFormatos:
-    def __init__(self, parent, controlador, procesador):
+    def __init__(self, parent, controlador, procesador, mostrar_siguiente=False):
         self.controlador = controlador
         self.procesador = procesador
+        self.mostrar_siguiente = mostrar_siguiente
 
         self.ventana = tk.Toplevel(parent)
         self.ventana.title(f"Formatos de Instrucción - {procesador.nombre}")
-        self.ventana.geometry("900x660")
+        self.ventana.resizable(True, True)
         self.ventana.transient(parent)
         self.ventana.grab_set()
 
@@ -20,6 +21,10 @@ class VentanaCrearFormatos:
 
         self._construir_interfaz()
         self._cargar_formatos_existentes()
+
+        # Ajustar tamaño al contenido
+        self.ventana.update_idletasks()
+        self.ventana.geometry("")
 
     # ─────────────────────────────────────────────
     #  CONSTRUCCIÓN
@@ -45,9 +50,13 @@ class VentanaCrearFormatos:
         btn_fmt_frame.pack(fill="x", padx=5, pady=(0, 8))
 
         ttk.Button(btn_fmt_frame, text="✏️ Editar",
-                   command=self.editar_formato).pack(side="left", expand=True, fill="x", padx=(0, 3))
+                   command=self.editar_formato).pack(side="left", expand=True, fill="x", padx=(0, 2))
         ttk.Button(btn_fmt_frame, text="🗑️ Eliminar",
-                   command=self.eliminar_formato).pack(side="left", expand=True, fill="x", padx=(3, 0))
+                   command=self.eliminar_formato).pack(side="left", expand=True, fill="x", padx=(2, 2))
+        ttk.Button(btn_fmt_frame, text="▲",
+                   command=self.mover_formato_arriba).pack(side="left", padx=(2, 2))
+        ttk.Button(btn_fmt_frame, text="▼",
+                   command=self.mover_formato_abajo).pack(side="left", padx=(2, 0))
 
         # === DERECHA: CREAR / EDITAR FORMATO ===
         self.frame_der = ttk.LabelFrame(panel_principal, text="Nuevo Formato")
@@ -99,8 +108,14 @@ class VentanaCrearFormatos:
         btn_campos_frame = ttk.Frame(self.frame_der)
         btn_campos_frame.pack(fill="x", padx=5, pady=(0, 4))
 
-        ttk.Button(btn_campos_frame, text="🗑️ Eliminar campo seleccionado",
-                   command=self.eliminar_campo_seleccionado).pack(side="left", padx=(0, 8))
+        ttk.Button(btn_campos_frame, text="✏️ Editar",
+                   command=self.editar_campo_seleccionado).pack(side="left", padx=(0, 4))
+        ttk.Button(btn_campos_frame, text="🗑️ Eliminar",
+                   command=self.eliminar_campo_seleccionado).pack(side="left", padx=(0, 4))
+        ttk.Button(btn_campos_frame, text="▲",
+                   command=self.mover_campo_arriba).pack(side="left", padx=(0, 2))
+        ttk.Button(btn_campos_frame, text="▼",
+                   command=self.mover_campo_abajo).pack(side="left", padx=(0, 8))
         ttk.Button(btn_campos_frame, text="Limpiar todos",
                    command=self.limpiar_campos).pack(side="left")
 
@@ -119,8 +134,9 @@ class VentanaCrearFormatos:
         btn_frame = ttk.Frame(self.ventana)
         btn_frame.pack(fill="x", pady=10)
 
-        ttk.Button(btn_frame, text="Siguiente: Crear Instrucciones >>",
-                   command=self.ir_a_instrucciones).pack(side="right", padx=20)
+        if self.mostrar_siguiente:
+            ttk.Button(btn_frame, text="Siguiente: Crear Instrucciones >>",
+                       command=self.ir_a_instrucciones).pack(side="right", padx=20)
 
     # ─────────────────────────────────────────────
     #  CARGA INICIAL
@@ -179,6 +195,70 @@ class VentanaCrearFormatos:
         if messagebox.askyesno("Confirmar", f"¿Eliminar el campo '{nombre_campo}'?"):
             del self.lista_operandos_temporal[indice]
             self.lista_campos_view.delete(indice)
+
+    def editar_campo_seleccionado(self):
+        """Carga el campo seleccionado en el formulario de entrada para editarlo."""
+        seleccion = self.lista_campos_view.curselection()
+        if not seleccion:
+            messagebox.showinfo("Selección", "Selecciona un campo para editarlo.")
+            return
+        indice = seleccion[0]
+        campo  = self.lista_operandos_temporal[indice]
+
+        # Poblar los entries con los datos del campo
+        self.nombre_campo_entry.delete(0, tk.END)
+        self.nombre_campo_entry.insert(0, campo["nombre"])
+
+        self.bits_campo_entry.delete(0, tk.END)
+        self.bits_campo_entry.insert(0, str(campo["bits"]))
+
+        # Reconstruir el texto de orden_bits desde el dict
+        self.orden_bits_entry.delete(0, tk.END)
+        from models.formato_instruccion import FormatoDeInstruccion
+        natural = FormatoDeInstruccion.orden_natural(campo["bits"])
+        if campo.get("orden_bits", natural) != natural:
+            orden_str = ", ".join(
+                f"{k}:{v}" for k, v in sorted(campo["orden_bits"].items(), key=lambda x: int(x[0]))
+            )
+            self.orden_bits_entry.insert(0, orden_str)
+
+        # Eliminar el campo de la lista temporal para que al presionar + se reemplace
+        del self.lista_operandos_temporal[indice]
+        self.lista_campos_view.delete(indice)
+
+    def mover_campo_arriba(self):
+        seleccion = self.lista_campos_view.curselection()
+        if not seleccion or seleccion[0] == 0:
+            return
+        i = seleccion[0]
+        # Intercambiar en la lista temporal
+        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i-1] =             self.lista_operandos_temporal[i-1], self.lista_operandos_temporal[i]
+        self._refrescar_lista_campos()
+        self.lista_campos_view.selection_set(i - 1)
+
+    def mover_campo_abajo(self):
+        seleccion = self.lista_campos_view.curselection()
+        if not seleccion or seleccion[0] >= len(self.lista_operandos_temporal) - 1:
+            return
+        i = seleccion[0]
+        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i+1] =             self.lista_operandos_temporal[i+1], self.lista_operandos_temporal[i]
+        self._refrescar_lista_campos()
+        self.lista_campos_view.selection_set(i + 1)
+
+    def _refrescar_lista_campos(self):
+        """Redibuja el Listbox de campos desde lista_operandos_temporal."""
+        from models.formato_instruccion import FormatoDeInstruccion
+        self.lista_campos_view.delete(0, tk.END)
+        for campo in self.lista_operandos_temporal:
+            natural = FormatoDeInstruccion.orden_natural(campo["bits"])
+            if campo.get("orden_bits", natural) != natural:
+                orden_str = ", ".join(
+                    f"{k}:{v}" for k, v in sorted(
+                        campo["orden_bits"].items(), key=lambda x: int(x[0])))
+                display = f"{campo['nombre']} ({campo['bits']} bits)  ⇄ {orden_str}"
+            else:
+                display = f"{campo['nombre']} ({campo['bits']} bits)  [orden natural]"
+            self.lista_campos_view.insert(tk.END, display)
 
     def limpiar_campos(self):
         self.lista_operandos_temporal = []
@@ -300,6 +380,26 @@ class VentanaCrearFormatos:
     # ─────────────────────────────────────────────
     #  ELIMINAR FORMATO
     # ─────────────────────────────────────────────
+
+    def mover_formato_arriba(self):
+        seleccion = self.lista_formatos.curselection()
+        if not seleccion or seleccion[0] == 0:
+            return
+        i = seleccion[0]
+        lst = self.procesador.formato_de_sintaxis
+        lst[i], lst[i-1] = lst[i-1], lst[i]
+        self._cargar_formatos_existentes()
+        self.lista_formatos.selection_set(i - 1)
+
+    def mover_formato_abajo(self):
+        seleccion = self.lista_formatos.curselection()
+        lst = self.procesador.formato_de_sintaxis
+        if not seleccion or seleccion[0] >= len(lst) - 1:
+            return
+        i = seleccion[0]
+        lst[i], lst[i+1] = lst[i+1], lst[i]
+        self._cargar_formatos_existentes()
+        self.lista_formatos.selection_set(i + 1)
 
     def eliminar_formato(self):
         seleccion = self.lista_formatos.curselection()

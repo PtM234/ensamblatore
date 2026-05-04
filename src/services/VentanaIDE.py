@@ -3,61 +3,310 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import re
 import os
+import json
+
+from models.procesador import Procesador
 from models.ensamblador import Ensamblador, ErrorDeEnsamblado
 
 
 class VentanaIDE:
-    def __init__(self, parent, controlador, procesador):
-        self.controlador = controlador
-        self.procesador = procesador
-        self.ruta_asm = None
+    """
+    Ventana principal de Ensamblatore.
+    El editor y el menú Formato se habilitan solo cuando
+    hay un procesador cargado.
+    """
+
+    def __init__(self, root):
+        self.root       = root
+        self.procesador = None
+        self.ruta_asm   = None
         self._hay_cambios = False
+        self.mnemonicos   = set()
 
-        self.mnemonicos = {
-            inst.get("mnemonico", "").upper()
-            for inst in procesador.set_de_instrucciones
-            if inst.get("mnemonico")
-        }
+        self.root.title("Ensamblatore")
+        self.root.geometry("1280x760")
+        self.root.protocol("WM_DELETE_WINDOW", self._confirmar_cierre)
 
-        self.ventana = tk.Toplevel(parent)
-        self.ventana.title(f"IDE — {procesador.nombre}")
-        self.ventana.geometry("900x700")
-        self.ventana.transient(parent)
-        self.ventana.protocol("WM_DELETE_WINDOW", self._confirmar_cierre)
-
-        self._construir_interfaz()
-        self._actualizar_titulo()
-
-    # ─────────────────────────────────────────────
-    #  CONSTRUCCIÓN
-    # ─────────────────────────────────────────────
-
-    def _construir_interfaz(self):
-        self._construir_toolbar()
-        self._construir_editor()
+        self._construir_menubar()
+        self._construir_cuerpo()
         self._construir_consola()
         self._construir_statusbar()
 
-    def _construir_toolbar(self):
-        toolbar = ttk.Frame(self.ventana, relief="raised")
-        toolbar.pack(side="top", fill="x", padx=2, pady=2)
+        # Estado inicial: sin procesador
+        self._set_estado_sin_procesador()
 
-        ttk.Button(toolbar, text="💾 Guardar",       command=self.guardar).pack(side="left", padx=4, pady=2)
-        ttk.Button(toolbar, text="📂 Guardar como…", command=self.guardar_como).pack(side="left", padx=4, pady=2)
+    # ─────────────────────────────────────────────
+    #  MENUBAR
+    # ─────────────────────────────────────────────
 
-        ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
+    def _construir_menubar(self):
+        self.menubar = tk.Menu(self.root)
+        self.root.config(menu=self.menubar)
 
-        ttk.Button(toolbar, text="⚙️ Ensamblar",     command=self.ensamblar).pack(side="left", padx=4, pady=2)
-        ttk.Button(toolbar, text="📋 Instrucciones", command=self.abrir_set_instrucciones).pack(side="left", padx=4, pady=2)
+        # ── Menú Archivo ─────────────────────────────────────────────
+        menu_archivo = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Archivo", menu=menu_archivo)
 
-        ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
+        menu_archivo.add_command(label="Nuevo procesador",
+                                 command=self._nuevo_procesador)
+        menu_archivo.add_command(label="Cargar procesador",
+                                 command=self._cargar_procesador)
 
-        self.lbl_info = ttk.Label(toolbar, text=self._texto_info())
-        self.lbl_info.pack(side="left", padx=4)
+        menu_archivo.add_separator()
 
-    def _construir_editor(self):
-        frame_editor = ttk.Frame(self.ventana)
-        frame_editor.pack(expand=True, fill="both", padx=4, pady=(4, 0))
+        menu_archivo.add_command(label="Guardar .asm",
+                                 command=self.guardar,
+                                 accelerator="Ctrl+S")
+        menu_archivo.add_command(label="Guardar .asm como…",
+                                 command=self.guardar_como)
+
+        menu_archivo.add_separator()
+
+        menu_archivo.add_command(label="Ensamblar",
+                                 command=self.ensamblar,
+                                 accelerator="F5")
+
+        # Atajos de teclado
+        self.root.bind("<Control-s>", lambda e: self.guardar())
+        self.root.bind("<F5>",        lambda e: self.ensamblar())
+
+        # ── Menú Formato ──────────────────────────────────────────────
+        self.menu_formato = tk.Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Formato", menu=self.menu_formato)
+
+        self.menu_formato.add_command(
+            label="Directivas del procesador",
+            command=self._editar_arquitectura)
+        self.menu_formato.add_command(
+            label="Crear / Editar formatos de instrucción",
+            command=self._abrir_formatos)
+        self.menu_formato.add_command(
+            label="Agregar / Editar instrucciones",
+            command=self._abrir_instrucciones)
+
+    # ─────────────────────────────────────────────
+    #  CUERPO PRINCIPAL
+    # ─────────────────────────────────────────────
+
+    def _construir_cuerpo(self):
+        # PanedWindow horizontal permite al usuario redimensionar el panel lateral
+        self._paned = ttk.PanedWindow(self.root, orient="horizontal")
+        self._paned.pack(expand=True, fill="both", padx=4, pady=(4, 0))
+
+        # Panel izquierdo de información (redimensionable)
+        self._frame_panel_izq = ttk.Frame(self._paned, width=280)
+        self._paned.add(self._frame_panel_izq, weight=0)
+
+        # Panel derecho: editor
+        self._frame_panel_der = ttk.Frame(self._paned)
+        self._paned.add(self._frame_panel_der, weight=1)
+
+        self._construir_panel_info(self._frame_panel_izq)
+        self._construir_editor(self._frame_panel_der)
+
+    # ─────────────────────────────────────────────
+    #  PANEL INFO
+    # ─────────────────────────────────────────────
+
+    def _construir_panel_info(self, parent):
+        panel = parent
+        panel.pack_propagate(False)
+
+        canvas    = tk.Canvas(panel, borderwidth=0, highlightthickness=0, bg="#f7f7f7")
+        scrollbar = ttk.Scrollbar(panel, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        self._frame_info  = ttk.Frame(canvas)
+        self._canvas_info = canvas
+        cw = canvas.create_window((0, 0), window=self._frame_info, anchor="nw")
+
+        self._frame_info.bind("<Configure>", lambda e: canvas.configure(
+            scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfig(cw, width=e.width))
+
+        # Mensaje inicial
+        self._lbl_sin_procesador = ttk.Label(
+            self._frame_info,
+            text="Sin procesador cargado.\n\nUsa Archivo → Nuevo procesador\no Archivo → Cargar procesador.",
+            foreground="gray", justify="center", wraplength=220
+        )
+        self._lbl_sin_procesador.pack(pady=30, padx=10)
+
+    def _poblar_panel_info(self):
+        """Destruye el contenido actual y reconstruye con el procesador cargado."""
+        for w in self._frame_info.winfo_children():
+            w.destroy()
+
+        p = self.procesador
+
+        self._segmento(self._frame_info, "⚙️ Configuración", [
+            f"Nombre:          {p.nombre}",
+            f"Palabra:         {p.tamano_palabra} bits",
+            f"Distribución:    {p.distribucion_memorias}",
+            f"Profundidad:     {p.profundidad}",
+            f"Ancho memoria:   {p.ancho} bits",
+            f"Mín. direc.:     {p.tamano_minimo_direccionable} bits",
+            f"Mapeo memoria:   0x{p.mapeo_memoria:08X}",
+            f"Aumento PC:      {p.aumento_pc}",
+            f"Endianness:      {p.endianess}",
+            f"Prefijo reg.:    {p.prefijo_registro}",
+            f"Num. registros:  {p.num_registros}",
+        ])
+
+        lineas_fmt = []
+        for fmt in p.formato_de_sintaxis:
+            lineas_fmt.append(f"▸ {fmt.get('nombre','?')}  ({fmt.get('total_bits','?')} bits)")
+            lineas_fmt.append(f"  Opcode: {fmt.get('bits_opcode','?')} bits")
+            for campo in fmt.get("campos_operandos", []):
+                if isinstance(campo, list):
+                    lineas_fmt.append(f"  • {campo[0]} ({campo[1]} bits)")
+                else:
+                    natural = {str(i): i for i in range(campo["bits"])}
+                    sufijo  = "  ⇄" if campo.get("orden_bits", natural) != natural else ""
+                    lineas_fmt.append(f"  • {campo['nombre']} ({campo['bits']} bits){sufijo}")
+            lineas_fmt.append("")
+        self._segmento(self._frame_info, "📐 Formatos", lineas_fmt)
+
+        self._segmento_instrucciones(self._frame_info)
+
+        self._segmento_simbolos(self._frame_info)
+
+    def _segmento(self, parent, titulo, lineas):
+        ttk.Label(parent, text=titulo, font=("Arial", 9, "bold"),
+                  background="#dde3ec").pack(fill="x", padx=4, pady=(6, 0))
+
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", padx=4, pady=(0, 4))
+
+        sb  = ttk.Scrollbar(frame, orient="vertical")
+        txt = tk.Text(
+            frame,
+            height=min(len([l for l in lineas if l]) + 1, 10),
+            font=("Courier New", 9), bg="#f7f7f7", fg="#222222",
+            relief="flat", wrap="none", state="normal",
+            yscrollcommand=sb.set,
+        )
+        sb.config(command=txt.yview)
+        sb.pack(side="right", fill="y")
+        txt.pack(side="left", fill="x", expand=True)
+
+        for linea in lineas:
+            txt.insert(tk.END, linea + "\n")
+        txt.config(state="disabled")
+
+    def _segmento_instrucciones(self, parent):
+        """Segmento de instrucciones agrupadas por formato, colapsable."""
+        ttk.Label(parent, text="📜 Instrucciones",
+                  font=("Arial", 9, "bold"),
+                  background="#dde3ec").pack(fill="x", padx=4, pady=(6, 0))
+
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", padx=4, pady=(0, 4))
+
+        sb_v = ttk.Scrollbar(frame, orient="vertical")
+        sb_h = ttk.Scrollbar(frame, orient="horizontal")
+
+        self._tree_inst = ttk.Treeview(
+            frame,
+            selectmode="browse",
+            show="tree headings",
+            yscrollcommand=sb_v.set,
+            xscrollcommand=sb_h.set,
+            height=12
+        )
+        self._tree_inst["columns"] = ("opcode", "mapeo")
+        self._tree_inst.heading("#0",     text="Instrucción")
+        self._tree_inst.heading("opcode", text="Opcode")
+        self._tree_inst.heading("mapeo",  text="Sintaxis")
+        self._tree_inst.column("#0",     width=90,  minwidth=70)
+        self._tree_inst.column("opcode", width=80,  minwidth=60)
+        self._tree_inst.column("mapeo",  width=100, minwidth=70)
+
+        self._tree_inst.tag_configure("grupo", font=("Arial", 9, "bold"),
+                                       foreground="#2c5f9e")
+        self._tree_inst.tag_configure("instr", font=("Courier New", 9))
+
+        sb_v.config(command=self._tree_inst.yview)
+        sb_h.config(command=self._tree_inst.xview)
+
+        sb_v.pack(side="right",  fill="y")
+        sb_h.pack(side="bottom", fill="x")
+        self._tree_inst.pack(fill="both", expand=True)
+
+        # Al hacer click el treeview toma foco y responde a las flechas
+        self._tree_inst.bind("<Button-1>", lambda e: self._tree_inst.focus_set())
+
+        self._poblar_tree_instrucciones()
+
+    def _poblar_tree_instrucciones(self):
+        """Puebla el Treeview de instrucciones agrupadas por formato."""
+        if not hasattr(self, "_tree_inst"):
+            return
+
+        self._tree_inst.delete(*self._tree_inst.get_children())
+
+        if not self.procesador:
+            return
+
+        grupos = {}
+        for inst in self.procesador.set_de_instrucciones:
+            fmt = inst.get("formato", "Sin formato")
+            grupos.setdefault(fmt, []).append(inst)
+
+        for fmt_nombre, instrucciones in grupos.items():
+            grupo_id = self._tree_inst.insert(
+                "", "end",
+                text=f"  {fmt_nombre}  ({len(instrucciones)})",
+                tags=("grupo",), open=True
+            )
+            for inst in instrucciones:
+                self._tree_inst.insert(
+                    grupo_id, "end",
+                    text=f"  {inst.get('mnemonico','?')}",
+                    values=(inst.get("opcode","?"), inst.get("mapeo_operandos","")),
+                    tags=("instr",)
+                )
+
+    def _segmento_simbolos(self, parent):
+        ttk.Label(parent, text="🏷️ Tabla de símbolos",
+                  font=("Arial", 9, "bold"),
+                  background="#dde3ec").pack(fill="x", padx=4, pady=(6, 0))
+
+        frame = ttk.Frame(parent)
+        frame.pack(fill="x", padx=4, pady=(0, 4))
+
+        sb = ttk.Scrollbar(frame, orient="vertical")
+        self._txt_simbolos = tk.Text(
+            frame, height=6, font=("Courier New", 9),
+            bg="#f7f7f7", fg="#222222", relief="flat",
+            wrap="none", state="normal", yscrollcommand=sb.set,
+        )
+        sb.config(command=self._txt_simbolos.yview)
+        sb.pack(side="right", fill="y")
+        self._txt_simbolos.pack(side="left", fill="x", expand=True)
+        self._txt_simbolos.insert(tk.END, "(vacío — ensambla para ver etiquetas)")
+        self._txt_simbolos.config(state="disabled")
+
+    def _actualizar_tabla_simbolos(self, tabla: dict):
+        self._txt_simbolos.config(state="normal")
+        self._txt_simbolos.delete("1.0", tk.END)
+        if tabla:
+            for nombre, dir_ in sorted(tabla.items()):
+                self._txt_simbolos.insert(tk.END, f"{nombre.ljust(12)} 0x{dir_:08X}\n")
+        else:
+            self._txt_simbolos.insert(tk.END, "(sin etiquetas)")
+        self._txt_simbolos.config(state="disabled")
+
+    # ─────────────────────────────────────────────
+    #  EDITOR
+    # ─────────────────────────────────────────────
+
+    def _construir_editor(self, parent):
+        frame_editor = ttk.Frame(parent)
+        frame_editor.pack(expand=True, fill="both")
 
         self.numeros = tk.Text(
             frame_editor, width=4, padx=6, state="disabled",
@@ -74,102 +323,160 @@ class VentanaIDE:
             font=("Courier New", 11), bg="#ffffff", fg="#000000",
             insertbackground="#000000", selectbackground="#cce5ff",
             relief="flat", yscrollcommand=self._scroll_sincronizado,
+            state="disabled"  # deshabilitado hasta cargar procesador
         )
         self.editor.pack(expand=True, fill="both")
         scroll_v.config(command=self._scroll_ambos)
 
-        scroll_h = ttk.Scrollbar(self.ventana, orient="horizontal", command=self.editor.xview)
+        scroll_h = ttk.Scrollbar(parent, orient="horizontal",
+                                  command=self.editor.xview)
         scroll_h.pack(side="bottom", fill="x")
         self.editor.config(xscrollcommand=scroll_h.set)
 
-        self._configurar_tags()
+        # Tags
+        self.editor.tag_configure(
+            "mnemonico", foreground="#0000cc",
+            font=("Courier New", 11, "bold"))
+
         self.editor.bind("<KeyRelease>",    self._on_key_release)
         self.editor.bind("<ButtonRelease>", self._actualizar_statusbar)
 
     def _construir_consola(self):
-        """Panel inferior que muestra errores y resultado del ensamblado."""
-        frame_consola = ttk.LabelFrame(self.ventana, text="Consola")
-        frame_consola.pack(fill="x", padx=4, pady=(2, 4))
+        frame = ttk.LabelFrame(self.root, text="Consola")
+        frame.pack(fill="x", padx=4, pady=(2, 4))
 
         self.consola = tk.Text(
-            frame_consola, height=5, font=("Courier New", 10),
+            frame, height=5, font=("Courier New", 10),
             bg="#1e1e1e", fg="#d4d4d4", state="disabled",
             relief="flat", wrap="word"
         )
         self.consola.pack(fill="x", padx=4, pady=4)
-
-        # Tags de color para la consola
-        self.consola.tag_configure("error",   foreground="#f44747")
-        self.consola.tag_configure("ok",      foreground="#6a9955")
-        self.consola.tag_configure("info",    foreground="#9cdcfe")
+        self.consola.tag_configure("error", foreground="#f44747")
+        self.consola.tag_configure("ok",    foreground="#6a9955")
+        self.consola.tag_configure("info",  foreground="#9cdcfe")
 
     def _construir_statusbar(self):
         self.statusbar = ttk.Label(
-            self.ventana, text="Lín 1, Col 1",
+            self.root, text="Sin procesador",
             anchor="e", relief="sunken", padding=(4, 2)
         )
         self.statusbar.pack(side="bottom", fill="x")
 
     # ─────────────────────────────────────────────
-    #  SET DE INSTRUCCIONES DESDE EL IDE
+    #  ESTADO: CON / SIN PROCESADOR
     # ─────────────────────────────────────────────
 
-    def _texto_info(self):
-        prefijo = self.procesador.prefijo_registro
-        n_regs  = self.procesador.num_registros
-        return (f"Procesador: {self.procesador.nombre}  |  "
-                f"Registros: {prefijo}0–{prefijo}{n_regs - 1}  |  "
-                f"Instrucciones: {len(self.procesador.set_de_instrucciones)}")
+    def _set_estado_sin_procesador(self):
+        """Deshabilita editor y menú Formato."""
+        self.editor.config(state="disabled")
+        self.menubar.entryconfig("Formato", state="disabled")
+        self.statusbar.config(text="Sin procesador cargado")
+        self.root.title("Ensamblatore")
 
-    def abrir_set_instrucciones(self):
-        """
-        Abre la ventana de set de instrucciones con el procesador actual.
-        Al cerrarla, actualiza el resaltado con los mnemónicos nuevos.
-        """
-        from services.CrearSetInstrucciones import VentanaCrearSetInstrucciones
-        ventana = VentanaCrearSetInstrucciones(
-            self.ventana, controlador=self.controlador, procesador=self.procesador
-        )
-        # Cuando la ventana de instrucciones se cierre, refrescamos
-        self.ventana.wait_window(ventana.ventana)
+    def _set_estado_con_procesador(self):
+        """Habilita editor y menú Formato, puebla el panel info."""
+        self.editor.config(state="normal")
+        self.menubar.entryconfig("Formato", state="normal")
+        self._poblar_panel_info()
         self._refrescar_mnemonicos()
+        self._actualizar_titulo()
+        self.statusbar.config(text=f"Procesador: {self.procesador.nombre}")
+        self._log(f"✔  Procesador '{self.procesador.nombre}' cargado.", "ok")
+
+    # ─────────────────────────────────────────────
+    #  ACCIONES DE ARCHIVO
+    # ─────────────────────────────────────────────
+
+    def _nuevo_procesador(self):
+        from services.CrearArquitectura import VentanaCrearArquitectura
+        VentanaCrearArquitectura(self.root, controlador=self)
+
+    def _cargar_procesador(self):
+        archivo = filedialog.askopenfilename(
+            title="Cargar procesador",
+            filetypes=[("Archivos JSON", "*.json")]
+        )
+        if not archivo:
+            return
+        try:
+            with open(archivo, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.procesador = Procesador.fromDict(data)
+            self.procesador.ruta_archivo = archivo
+            self._set_estado_con_procesador()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{e}")
+
+    # ─────────────────────────────────────────────
+    #  CALLBACKS DEL CONTROLADOR
+    #  (usados por VentanaCrearArquitectura, etc.)
+    # ─────────────────────────────────────────────
+
+    def abrir_crear_formatos(self, procesador):
+        self.procesador = procesador
+        self._set_estado_con_procesador()
+        self._abrir_formatos()
+
+    def abrir_set_instrucciones(self, procesador):
+        self.procesador = procesador
+        self._set_estado_con_procesador()
+        self._abrir_instrucciones()
+
+    def abrir_ide(self, procesador=None):
+        """Llamado al terminar el flujo de creación."""
+        if procesador:
+            self.procesador = procesador
+        self._set_estado_con_procesador()
+
+    # ─────────────────────────────────────────────
+    #  ACCIONES DE FORMATO
+    # ─────────────────────────────────────────────
+
+    def _editar_arquitectura(self):
+        from services.CrearArquitectura import VentanaCrearArquitectura
+        VentanaCrearArquitectura(self.root, controlador=self,
+                                 procesador_existente=self.procesador)
+
+    def _abrir_formatos(self):
+        from services.CrearFormatos import VentanaCrearFormatos
+        v = VentanaCrearFormatos(self.root, controlador=self,
+                                 procesador=self.procesador)
+        self.root.wait_window(v.ventana)
+        self._poblar_panel_info()
+
+    def _abrir_instrucciones(self):
+        from services.CrearSetInstrucciones import VentanaCrearSetInstrucciones
+        v = VentanaCrearSetInstrucciones(self.root, controlador=self,
+                                         procesador=self.procesador)
+        self.root.wait_window(v.ventana)
+        self._refrescar_mnemonicos()
+        self._poblar_panel_info()
+        self._poblar_tree_instrucciones()
+
+    # ─────────────────────────────────────────────
+    #  RESALTADO Y MNEMONICOS
+    # ─────────────────────────────────────────────
 
     def _refrescar_mnemonicos(self):
-        """
-        Actualiza el set de mnemónicos y el resaltado después de
-        modificar instrucciones sin salir del IDE.
-        """
+        if not self.procesador:
+            return
         self.mnemonicos = {
             inst.get("mnemonico", "").upper()
             for inst in self.procesador.set_de_instrucciones
             if inst.get("mnemonico")
         }
         self._resaltar_sintaxis()
-        # Actualizar contador en el toolbar
-        self.lbl_info.config(text=self._texto_info())
-
-    # ─────────────────────────────────────────────
-    #  RESALTADO
-    # ─────────────────────────────────────────────
-
-    def _configurar_tags(self):
-        self.editor.tag_configure(
-            "mnemonico", foreground="#0000cc",
-            font=("Courier New", 11, "bold")
-        )
 
     def _resaltar_sintaxis(self):
         self.editor.tag_remove("mnemonico", "1.0", tk.END)
         contenido = self.editor.get("1.0", tk.END)
         for n_linea, linea in enumerate(contenido.split("\n"), start=1):
-            parte_codigo = linea.split(";")[0]
-            for m in re.finditer(r"\b([A-Za-z_]\w*)\b", parte_codigo):
+            parte = linea.split(";")[0]
+            for m in re.finditer(r"\b([A-Za-z_]\w*)\b", parte):
                 if m.group(1).upper() in self.mnemonicos:
-                    self.editor.tag_add(
-                        "mnemonico",
-                        f"{n_linea}.{m.start()}",
-                        f"{n_linea}.{m.end()}"
-                    )
+                    self.editor.tag_add("mnemonico",
+                                        f"{n_linea}.{m.start()}",
+                                        f"{n_linea}.{m.end()}")
 
     # ─────────────────────────────────────────────
     #  NUMERACIÓN Y SCROLL
@@ -203,12 +510,14 @@ class VentanaIDE:
     def _actualizar_statusbar(self, event=None):
         pos = self.editor.index(tk.INSERT)
         linea, col = pos.split(".")
-        self.statusbar.config(text=f"Lín {linea}, Col {int(col) + 1}")
+        nombre = self.procesador.nombre if self.procesador else "Sin procesador"
+        self.statusbar.config(text=f"{nombre}  |  Lín {linea}, Col {int(col)+1}")
 
     def _actualizar_titulo(self):
         nombre  = self.ruta_asm if self.ruta_asm else "Sin guardar"
         cambios = " •" if self._hay_cambios else ""
-        self.ventana.title(f"IDE — {self.procesador.nombre}  |  {nombre}{cambios}")
+        proc    = self.procesador.nombre if self.procesador else "Ensamblatore"
+        self.root.title(f"Ensamblatore — {proc}  |  {nombre}{cambios}")
 
     # ─────────────────────────────────────────────
     #  CONSOLA
@@ -230,9 +539,11 @@ class VentanaIDE:
     # ─────────────────────────────────────────────
 
     def ensamblar(self):
-        """
-        Ensambla el código del editor y ofrece guardar los archivos de salida.
-        """
+        if not self.procesador:
+            messagebox.showwarning("Sin procesador",
+                                   "Carga un procesador antes de ensamblar.")
+            return
+
         self._limpiar_consola()
         codigo = self.editor.get("1.0", tk.END).strip()
 
@@ -241,7 +552,6 @@ class VentanaIDE:
             return
 
         ensamblador = Ensamblador(self.procesador)
-
         try:
             binarios = ensamblador.ensamblar(codigo)
         except ErrorDeEnsamblado as e:
@@ -251,27 +561,22 @@ class VentanaIDE:
             self._log(f"✗  Error inesperado: {e}", "error")
             return
 
-        n = len(binarios)
-        self._log(f"✔  Ensamblado exitoso — {n} instrucción(es).", "ok")
+        self._log(f"✔  Ensamblado exitoso — {len(binarios)} instrucción(es).", "ok")
+        self._actualizar_tabla_simbolos(ensamblador.tabla_simbolos)
 
-        # Mostrar las instrucciones en la consola
         direccion = self.procesador.mapeo_memoria
-        paso = self.procesador.aumento_pc
+        paso      = self.procesador.aumento_pc
         for b in binarios:
-            hex_val = f"{int(b, 2):08X}"
-            self._log(f"   0x{direccion:08X}  {b}  ({hex_val})", "info")
+            self._log(f"   0x{direccion:08X}  {b}  ({int(b,2):08X})", "info")
             direccion += paso
 
-        # Preguntar dónde guardar
         self._guardar_salida(ensamblador)
 
-    def _guardar_salida(self, ensamblador: Ensamblador):
-        """Abre diálogo para elegir formato y ruta de salida."""
-        # Ventana de selección de formato
-        dialogo = tk.Toplevel(self.ventana)
+    def _guardar_salida(self, ensamblador):
+        dialogo = tk.Toplevel(self.root)
         dialogo.title("Guardar salida")
         dialogo.geometry("300x200")
-        dialogo.transient(self.ventana)
+        dialogo.transient(self.root)
         dialogo.grab_set()
 
         ttk.Label(dialogo, text="Selecciona el formato de salida:",
@@ -291,21 +596,17 @@ class VentanaIDE:
 
         ttk.Button(dialogo, text="Guardar…", command=confirmar).pack(pady=15)
 
-    def _exportar(self, ensamblador: Ensamblador, fmt: str):
-        nombre_base = os.path.splitext(
-            os.path.basename(self.ruta_asm)
-        )[0] if self.ruta_asm else self.procesador.nombre
-
+    def _exportar(self, ensamblador, fmt):
+        nombre_base = (os.path.splitext(os.path.basename(self.ruta_asm))[0]
+                       if self.ruta_asm else self.procesador.nombre)
         ruta = filedialog.asksaveasfilename(
             title="Guardar archivo ensamblado",
             defaultextension=f".{fmt}",
             initialfile=f"{nombre_base}.{fmt}",
             filetypes=[(f"Archivo .{fmt}", f"*.{fmt}"), ("Todos", "*.*")]
         )
-
         if not ruta:
             return
-
         try:
             if fmt == "bin":
                 ensamblador.generar_bin(ruta)
@@ -328,10 +629,11 @@ class VentanaIDE:
             self.guardar_como()
 
     def guardar_como(self):
+        nombre = self.procesador.nombre if self.procesador else "codigo"
         ruta = filedialog.asksaveasfilename(
             title="Guardar código ensamblador",
             defaultextension=".asm",
-            initialfile=f"{self.procesador.nombre}.asm",
+            initialfile=f"{nombre}.asm",
             filetypes=[("Archivos ensamblador", "*.asm"),
                        ("Archivos de texto", "*.txt"),
                        ("Todos", "*.*")]
@@ -362,8 +664,8 @@ class VentanaIDE:
             )
             if r is True:
                 self.guardar()
-                self.ventana.destroy()
+                self.root.destroy()
             elif r is False:
-                self.ventana.destroy()
+                self.root.destroy()
         else:
-            self.ventana.destroy()
+            self.root.destroy()
