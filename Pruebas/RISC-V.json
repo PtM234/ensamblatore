@@ -66,63 +66,17 @@
             "total_bits": 32,
             "bits_opcode": 7,
             "campos_operandos": [
-                [
-                    "imm_lo",
-                    5
-                ],
-                [
-                    "funct3",
-                    3
-                ],
-                [
-                    "rs1",
-                    5
-                ],
-                [
-                    "rs2",
-                    5
-                ],
-                [
-                    "imm_hi",
-                    7
-                ]
-            ]
-        },
-        {
-            "nombre": "Tipo-U",
-            "total_bits": 32,
-            "bits_opcode": 7,
-            "campos_operandos": [
-                [
-                    "rd",
-                    5
-                ],
-                [
-                    "imm",
-                    20
-                ]
-            ]
-        },
-        {
-            "nombre": "Tipo-J",
-            "total_bits": 32,
-            "bits_opcode": 7,
-            "campos_operandos": [
-                [
-                    "rd",
-                    5
-                ],
-                [
-                    "imm",
-                    20
-                ]
-            ]
-        },
-        {
-            "nombre": "Tipo-B",
-            "total_bits": 32,
-            "bits_opcode": 7,
-            "campos_operandos": [
+                {
+                    "nombre": "imm_lo",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
+                    }
+                },
                 {
                     "nombre": "funct3",
                     "bits": 3,
@@ -155,14 +109,124 @@
                     }
                 },
                 {
+                    "nombre": "imm_hi",
+                    "bits": 7,
+                    "orden_bits": {
+                        "5": 0,
+                        "6": 1,
+                        "7": 2,
+                        "8": 3,
+                        "9": 4,
+                        "10": 5,
+                        "11": 6
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "Tipo-U",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                [
+                    "rd",
+                    5
+                ],
+                [
+                    "imm",
+                    20
+                ]
+            ]
+        },
+        {
+            "nombre": "Tipo-J",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                {
+                    "nombre": "rd",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
+                    }
+                },
+                {
+                    "nombre": "imm",
+                    "bits": 20,
+                    "orden_bits": {
+                        "1": 9,
+                        "2": 10,
+                        "3": 11,
+                        "4": 12,
+                        "5": 13,
+                        "6": 14,
+                        "7": 15,
+                        "8": 16,
+                        "9": 17,
+                        "10": 18,
+                        "11": 8,
+                        "12": 0,
+                        "13": 1,
+                        "14": 2,
+                        "15": 3,
+                        "16": 4,
+                        "17": 5,
+                        "18": 6,
+                        "19": 7,
+                        "20": 19
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "Tipo-B",
+            "total_bits": 32,
+            "bits_opcode": 7,
+            "campos_operandos": [
+                {
                     "nombre": "imm_lo",
                     "bits": 5,
                     "orden_bits": {
-                        "1": 0,
-                        "2": 1,
-                        "3": 2,
-                        "4": 3,
-                        "11": 4
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "11": 0
+                    }
+                },
+                {
+                    "nombre": "funct3",
+                    "bits": 3,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2
+                    }
+                },
+                {
+                    "nombre": "rs1",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
+                    }
+                },
+                {
+                    "nombre": "rs2",
+                    "bits": 5,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4
                     }
                 },
                 {
@@ -527,10 +591,10 @@
             "mapeo_operandos": "rs1, rs2, imm",
             "descripcion": "Branch if equal",
             "campos": {
+                "imm_lo": "",
                 "funct3": "000",
                 "rs1": "",
                 "rs2": "",
-                "imm_lo": "",
                 "imm_hi": ""
             }
         },
@@ -541,10 +605,10 @@
             "mapeo_operandos": "rs1, rs2, imm",
             "descripcion": "Branch if not equal",
             "campos": {
+                "imm_lo": "",
                 "funct3": "001",
                 "rs1": "",
                 "rs2": "",
-                "imm_lo": "",
                 "imm_hi": ""
             }
         },
@@ -555,10 +619,10 @@
             "mapeo_operandos": "rs1, rs2, imm",
             "descripcion": "Branch if less than",
             "campos": {
+                "imm_lo": "",
                 "funct3": "100",
                 "rs1": "",
                 "rs2": "",
-                "imm_lo": "",
                 "imm_hi": ""
             }
         },
@@ -569,10 +633,10 @@
             "mapeo_operandos": "rs1, rs2, imm",
             "descripcion": "Branch if greater or equal",
             "campos": {
+                "imm_lo": "",
                 "funct3": "101",
                 "rs1": "",
                 "rs2": "",
-                "imm_lo": "",
                 "imm_hi": ""
             }
         },

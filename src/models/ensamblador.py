@@ -10,6 +10,19 @@ class ErrorDeEnsamblado(Exception):
 
 
 class Ensamblador:
+    # Tabla de alias ABI de RISC-V → nombre con prefijo x
+    _ALIAS_ABI = {
+        "zero": "x0",  "ra": "x1",  "sp": "x2",  "gp": "x3",
+        "tp":   "x4",  "t0": "x5",  "t1": "x6",  "t2": "x7",
+        "s0":   "x8",  "fp": "x8",  "s1": "x9",  "a0": "x10",
+        "a1":   "x11", "a2": "x12", "a3": "x13", "a4": "x14",
+        "a5":   "x15", "a6": "x16", "a7": "x17", "s2": "x18",
+        "s3":   "x19", "s4": "x20", "s5": "x21", "s6": "x22",
+        "s7":   "x23", "s8": "x24", "s9": "x25", "s10": "x26",
+        "s11":  "x27", "t3": "x28", "t4": "x29", "t5": "x30",
+        "t6":   "x31",
+    }
+
     def __init__(self, procesador):
         self.procesador              = procesador
         self.tabla_simbolos          = {}
@@ -61,12 +74,30 @@ class Ensamblador:
 
     def _separar_operandos(self, ops_raw: str) -> list:
         """
-        Separa operandos por coma sin romper expresiones con paréntesis.
-        "x10, 4(x2), x1" → ["x10", "4(x2)", "x1"]
+        Separa operandos por coma o espacios sin romper expresiones con paréntesis.
+        Acepta tanto "x10, 4(x2), x1" como "x10 4(x2) x1".
+        Si hay comas las usa como separador; si no, usa espacios.
         """
-        operandos = []
-        actual    = ""
+        ops_raw = ops_raw.strip()
+        if not ops_raw:
+            return []
+
+        # Determinar separador: coma si hay alguna fuera de paréntesis, sino espacio
+        usa_coma = False
         profundidad = 0
+        for c in ops_raw:
+            if c == "(":
+                profundidad += 1
+            elif c == ")":
+                profundidad -= 1
+            elif c == "," and profundidad == 0:
+                usa_coma = True
+                break
+
+        operandos   = []
+        actual      = ""
+        profundidad = 0
+
         for c in ops_raw:
             if c == "(":
                 profundidad += 1
@@ -74,14 +105,17 @@ class Ensamblador:
             elif c == ")":
                 profundidad -= 1
                 actual += c
-            elif c == "," and profundidad == 0:
+            elif profundidad == 0 and ((usa_coma and c == ",") or
+                                        (not usa_coma and c == " ")):
                 if actual.strip():
                     operandos.append(actual.strip())
                 actual = ""
             else:
                 actual += c
+
         if actual.strip():
             operandos.append(actual.strip())
+
         return operandos
 
     # ─────────────────────────────────────────────
@@ -180,17 +214,28 @@ class Ensamblador:
                 nombre_imm = match_compuesto.group(1)
                 nombre_reg = match_compuesto.group(2)
 
-                # El operando real debe ser algo como "4(x2)"
+                # El operando real puede ser "4(x2)" o "4(sp)" con alias ABI
+                # Primero intentar con prefijo numérico
                 match_op = re.match(
                     rf'^(-?\w+)\({re.escape(self._prefijo)}(\d+)\)$',
                     op_raw, re.IGNORECASE)
-                if not match_op:
-                    raise ErrorDeEnsamblado(
-                        f"'{mnem}': se esperaba '{token}' pero se recibió '{op_raw}'",
-                        n_linea)
 
-                resultado[nombre_imm] = match_op.group(1)          # el inmediato
-                resultado[nombre_reg] = f"{self._prefijo}{match_op.group(2)}"  # el registro
+                if match_op:
+                    resultado[nombre_imm] = match_op.group(1)
+                    resultado[nombre_reg] = f"{self._prefijo}{match_op.group(2)}"
+                else:
+                    # Intentar con alias ABI: "4(sp)" → imm=4, reg=x2
+                    match_alias = re.match(r'^(-?\w+)\((\w+)\)$', op_raw)
+                    if match_alias:
+                        imm_part = match_alias.group(1)
+                        reg_part = match_alias.group(2).lower()
+                        reg_resuelto = self._ALIAS_ABI.get(reg_part, reg_part)
+                        resultado[nombre_imm] = imm_part
+                        resultado[nombre_reg] = reg_resuelto
+                    else:
+                        raise ErrorDeEnsamblado(
+                            f"'{mnem}': se esperaba '{token}' pero se recibió '{op_raw}'",
+                            n_linea)
             else:
                 # ── Token simple: nombre de campo ────────────────────
                 resultado[token] = op_raw
@@ -252,10 +297,10 @@ class Ensamblador:
                         f"el campo '{nombre_c}'. Revisa el mapeo de operandos.",
                         n_linea)
 
-                # Si usó fallback y tiene orden_bits personalizado,
-                # resolver con el ancho real = bit índice más alto + 1
+                # Si tiene orden_bits personalizado, resolver con el ancho real
+                # = bit índice más alto + 1 (aplica tanto a fallback como a campo directo)
                 natural = {str(i): i for i in range(bits_c)}
-                if uso_fallback and orden != natural and orden:
+                if orden != natural and orden:
                     bits_resolucion = max(int(k) for k in orden.keys()) + 1
                 else:
                     bits_resolucion = bits_c
@@ -283,6 +328,10 @@ class Ensamblador:
 
     def _resolver_operando(self, op_raw, nombre_campo, bits, pc, n_linea, mnem):
         op = op_raw.strip()
+
+        # Resolver alias ABI (sp→x2, zero→x0, ra→x1, etc.)
+        if op.lower() in self._ALIAS_ABI:
+            op = self._ALIAS_ABI[op.lower()]
 
         # Registro
         match_reg = re.match(
