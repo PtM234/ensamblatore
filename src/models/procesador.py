@@ -5,7 +5,8 @@ import json
 class Procesador:
     def __init__(self, nombre, tamano_palabra, distribucion_memorias, profundidad, ancho,
                  tamano_minimo_direccionable, mapeo_memoria, aumento_pc, endianess,
-                 prefijo_registro="x", num_registros=32,
+                 prefijo_registro="x", num_registros=32, alias_registros=None,
+                 comentarios=None,
                  formato_de_sintaxis=None, set_de_instrucciones=None, codigo=None):
         self.nombre = nombre
         self.tamano_palabra = tamano_palabra
@@ -18,6 +19,17 @@ class Procesador:
         self.endianess = endianess
         self.prefijo_registro = prefijo_registro   # ej. "x", "r", "reg"
         self.num_registros = num_registros         # ej. 32
+
+        # Alias de registros definidos por el usuario: { "sp": "x2", "zero": "x0", ... }
+        self.alias_registros = alias_registros if alias_registros is not None else {}
+
+        # Configuración de comentarios:
+        #   "linea":  lista de marcadores de comentario de línea (ej. [";", "//", "#"])
+        #   "bloque": lista de pares [apertura, cierre]  (ej. [["/*", "*/"], ["(*", "*)"]])
+        if comentarios is not None:
+            self.comentarios = comentarios
+        else:
+            self.comentarios = {"linea": [";"], "bloque": []}
 
         self.formato_de_sintaxis    = formato_de_sintaxis    if formato_de_sintaxis    is not None else []
         self.set_de_instrucciones   = set_de_instrucciones   if set_de_instrucciones   is not None else []
@@ -48,6 +60,8 @@ class Procesador:
             "endianess":                    self.endianess,
             "prefijo_registro":             self.prefijo_registro,
             "num_registros":                self.num_registros,
+            "alias_registros":              self.alias_registros,
+            "comentarios":                  self.comentarios,
             "formato_de_sintaxis":          self.formato_de_sintaxis,
             "set_de_instrucciones": [
                 i.toDict() if hasattr(i, 'toDict') else i
@@ -81,6 +95,8 @@ class Procesador:
             endianess=d["endianess"],
             prefijo_registro=d.get("prefijo_registro", "x"),   # default "x" para JSONs viejos
             num_registros=d.get("num_registros", 32),           # default 32 para JSONs viejos
+            alias_registros=d.get("alias_registros", {}),
+            comentarios=d.get("comentarios", {"linea": [";"], "bloque": []}),
             formato_de_sintaxis=d.get("formato_de_sintaxis", []),
             set_de_instrucciones=set_instrucciones,
             codigo=d.get("codigo", [])

@@ -1,0 +1,26 @@
+{
+    "nombre": "MiCPU_v1",
+    "tamano_palabra": 16,
+    "distribucion_memorias": "Harvard",
+    "profundidad": 1024,
+    "ancho": 8,
+    "tamano_minimo_direccionable": 1,
+    "mapeo_memoria": 0,
+    "aumento_pc": 1,
+    "endianess": "Little Endian",
+    "formato_de_sintaxis": [
+        {
+            "nombre": "Type I",
+            "total_bits": 8,
+            "bits_opcode": 4,
+            "campos_operandos": [
+                [
+                    "rd",
+                    4
+                ]
+            ]
+        }
+    ],
+    "set_de_instrucciones": [],
+    "codigo": []
+}

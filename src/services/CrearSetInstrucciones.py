@@ -72,13 +72,11 @@ class VentanaCrearSetInstrucciones:
         frame_tree.pack(fill="both", expand=True, padx=5, pady=5)
 
         self.tree = ttk.Treeview(frame_tree, selectmode="browse", show="tree headings")
-        self.tree["columns"] = ("opcode", "mapeo")
+        self.tree["columns"] = ("mapeo",)
         self.tree.heading("#0",      text="Instrucción")
-        self.tree.heading("opcode",  text="Opcode")
         self.tree.heading("mapeo",   text="Sintaxis")
-        self.tree.column("#0",      width=110, minwidth=80)
-        self.tree.column("opcode",  width=90,  minwidth=70)
-        self.tree.column("mapeo",   width=130, minwidth=80)
+        self.tree.column("#0",      width=120, minwidth=90)
+        self.tree.column("mapeo",   width=160, minwidth=100)
 
         sb_v = ttk.Scrollbar(frame_tree, orient="vertical",   command=self.tree.yview)
         sb_h = ttk.Scrollbar(frame_tree, orient="horizontal", command=self.tree.xview)
@@ -96,15 +94,15 @@ class VentanaCrearSetInstrucciones:
         btn_frame = ttk.Frame(parent)
         btn_frame.pack(fill="x", padx=5, pady=(0, 6))
 
-        ttk.Button(btn_frame, text="✏️ Editar",
+        ttk.Button(btn_frame, text="Editar",
                    command=self.editar_instruccion).pack(side="left", expand=True,
                                                           fill="x", padx=(0, 2))
-        ttk.Button(btn_frame, text="🗑️ Eliminar",
+        ttk.Button(btn_frame, text="Eliminar",
                    command=self.eliminar_instruccion).pack(side="left", expand=True,
                                                             fill="x", padx=(2, 2))
-        ttk.Button(btn_frame, text="▲",
+        ttk.Button(btn_frame, text="",
                    command=self.mover_arriba).pack(side="left", padx=(2, 2))
-        ttk.Button(btn_frame, text="▼",
+        ttk.Button(btn_frame, text="",
                    command=self.mover_abajo).pack(side="left", padx=(2, 0))
 
     def _construir_form_fijo(self):
@@ -114,11 +112,6 @@ class VentanaCrearSetInstrucciones:
             row=0, column=0, sticky="w", padx=8, pady=(10, 2))
         self.mnemonico_entry = ttk.Entry(f)
         self.mnemonico_entry.grid(row=1, column=0, sticky="ew", padx=8)
-
-        ttk.Label(f, text="Opcode (binario):").grid(
-            row=2, column=0, sticky="w", padx=8, pady=(8, 2))
-        self.opcode_entry = ttk.Entry(f)
-        self.opcode_entry.grid(row=3, column=0, sticky="ew", padx=8)
 
         ttk.Label(f, text="Formato de instrucción:").grid(
             row=4, column=0, sticky="w", padx=8, pady=(8, 2))
@@ -142,9 +135,9 @@ class VentanaCrearSetInstrucciones:
         ttk.Separator(f, orient="horizontal").grid(
             row=11, column=0, sticky="ew", padx=8, pady=8)
 
-        ttk.Label(f, text="Valores constantes del formato",
+        ttk.Label(f, text="Valores de los campos del formato",
                   font=("Arial", 10, "bold")).grid(row=12, column=0, sticky="w", padx=8)
-        ttk.Label(f, text="Vacío = operando variable   |   Binario = constante fija",
+        ttk.Label(f, text="opcode/constante = binario fijo   |   registro/inmediato = dejar vacío",
                   foreground="gray").grid(row=13, column=0, sticky="w", padx=8, pady=(2, 6))
 
         self.frame_campos = ttk.Frame(f)
@@ -196,13 +189,12 @@ class VentanaCrearSetInstrucciones:
             )
             for idx_global, inst in instrucciones:
                 mnem  = inst.get("mnemonico", "?")
-                opc   = inst.get("opcode", "?")
                 mapeo = inst.get("mapeo_operandos", "")
                 self.tree.insert(
                     grupo_id, "end",
                     iid=f"inst_{idx_global}",
                     text=f"  {mnem}",
-                    values=(opc, mapeo),
+                    values=(mapeo,),
                     tags=("instr",)
                 )
 
@@ -271,19 +263,33 @@ class VentanaCrearSetInstrucciones:
             return
 
         for i, campo in enumerate(fmt.get("campos_operandos", [])):
-            nombre_c = campo[0] if isinstance(campo, list) else campo["nombre"]
-            bits_c   = campo[1] if isinstance(campo, list) else campo["bits"]
+            # Soportar modelo nuevo (dict con tipo) y viejo (lista)
+            if isinstance(campo, list):
+                nombre_c = campo[0]
+                bits_c   = campo[1]
+                tipo_c   = "constante"
+            else:
+                nombre_c = campo["nombre"]
+                bits_c   = campo["bits"]
+                tipo_c   = campo.get("tipo", "constante")
 
-            ttk.Label(self.frame_campos,
-                      text=f"{nombre_c}  ({bits_c} bits):").grid(
+            es_fijo = tipo_c in ("opcode", "constante")
+            etiqueta = f"{nombre_c}  ({bits_c} bits, {tipo_c}):"
+
+            ttk.Label(self.frame_campos, text=etiqueta).grid(
                 row=i, column=0, sticky="w", pady=3)
 
             entry = ttk.Entry(self.frame_campos, width=22)
             entry.grid(row=i, column=1, sticky="ew", padx=(8, 0), pady=3)
 
-            valor = (valores or {}).get(nombre_c, "")
-            if valor:
-                entry.insert(0, valor)
+            if es_fijo:
+                valor = (valores or {}).get(nombre_c, "")
+                if valor:
+                    entry.insert(0, valor)
+            else:
+                # Campos variables (registro/inmediato) no llevan valor fijo
+                entry.insert(0, "")
+                entry.config(state="disabled")
 
             self._campos_entries[nombre_c] = entry
 
@@ -292,8 +298,14 @@ class VentanaCrearSetInstrucciones:
         self._canvas.configure(scrollregion=self._canvas.bbox("all"))
 
     def _leer_campos_dinamicos(self):
-        return {nombre: entry.get().strip()
-                for nombre, entry in self._campos_entries.items()}
+        resultado = {}
+        for nombre, entry in self._campos_entries.items():
+            # Los entries deshabilitados (registro/inmediato) se guardan como ""
+            if str(entry.cget("state")) == "disabled":
+                resultado[nombre] = ""
+            else:
+                resultado[nombre] = entry.get().strip()
+        return resultado
 
     # ─────────────────────────────────────────────
     #  GUARDAR
@@ -301,7 +313,6 @@ class VentanaCrearSetInstrucciones:
 
     def guardar_instruccion(self):
         mnem   = self.mnemonico_entry.get().strip().upper()
-        opcode = self.opcode_entry.get().strip()
         fmt    = self.formato_combo.get()
         mapeo  = self.mapeo_entry.get().strip()
         desc   = self.desc_entry.get().strip()
@@ -309,12 +320,6 @@ class VentanaCrearSetInstrucciones:
 
         if not mnem:
             messagebox.showwarning("Atención", "El mnemónico no puede estar vacío.")
-            return
-        if not opcode:
-            messagebox.showwarning("Atención", "El opcode no puede estar vacío.")
-            return
-        if not all(c in "01" for c in opcode):
-            messagebox.showwarning("Atención", "El opcode debe ser binario.")
             return
         if not fmt:
             messagebox.showwarning("Atención", "Selecciona un formato.")
@@ -336,7 +341,6 @@ class VentanaCrearSetInstrucciones:
 
         nueva = {
             "mnemonico":       mnem,
-            "opcode":          opcode,
             "formato":         fmt,
             "mapeo_operandos": mapeo,
             "descripcion":     desc,
@@ -367,13 +371,11 @@ class VentanaCrearSetInstrucciones:
         inst = self.procesador.set_de_instrucciones[idx]
         self._indice_editando = idx
         self.panel_form.config(text=f"Editando: {inst.get('mnemonico', '?')}")
-        self.btn_guardar.config(text="Guardar cambios")
+        self.btn_guardar.config(text="GUARDAR CAMBIOS")
         self.btn_cancelar.grid(row=17, column=0, sticky="ew", padx=8, pady=(0, 8))
 
         self.mnemonico_entry.delete(0, tk.END)
         self.mnemonico_entry.insert(0, inst.get("mnemonico", ""))
-        self.opcode_entry.delete(0, tk.END)
-        self.opcode_entry.insert(0, inst.get("opcode", ""))
 
         fmt_nombre = inst.get("formato", "")
         nombres = list(self.formato_combo["values"])
@@ -419,7 +421,6 @@ class VentanaCrearSetInstrucciones:
 
     def _limpiar_formulario(self):
         self.mnemonico_entry.delete(0, tk.END)
-        self.opcode_entry.delete(0, tk.END)
         self.mapeo_entry.delete(0, tk.END)
         self.desc_entry.delete(0, tk.END)
         if self.formato_combo["values"]:

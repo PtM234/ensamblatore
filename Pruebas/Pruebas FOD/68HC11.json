@@ -1,0 +1,3658 @@
+{
+    "nombre": "68HC11",
+    "tamano_palabra": 8,
+    "distribucion_memorias": "Von Neumann",
+    "profundidad": 1024,
+    "ancho": 8,
+    "tamano_minimo_direccionable": 8,
+    "mapeo_memoria": 0,
+    "aumento_pc": 1,
+    "endianess": "Big Endian",
+    "prefijo_registro": "x",
+    "num_registros": 0,
+    "formato_de_sintaxis": [
+        {
+            "nombre": "INH1",
+            "total_bits": 8,
+            "bits_opcode": 8,
+            "campos_operandos": []
+        },
+        {
+            "nombre": "INH2",
+            "total_bits": 16,
+            "bits_opcode": 16,
+            "campos_operandos": []
+        },
+        {
+            "nombre": "REL",
+            "total_bits": 16,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "rr",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IMM2",
+            "total_bits": 16,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "ii",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IMM3",
+            "total_bits": 24,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "jj",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "kk",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IMM4",
+            "total_bits": 32,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "jj",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "kk",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "DIR2",
+            "total_bits": 16,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "dd",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "DIR3",
+            "total_bits": 24,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "dd",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "DIR3b",
+            "total_bits": 24,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "dd",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "DIR4",
+            "total_bits": 32,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "dd",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "rr",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "EXT3",
+            "total_bits": 24,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "hh",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "ll",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "EXT4",
+            "total_bits": 32,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "hh",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "ll",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,X2",
+            "total_bits": 16,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,X3",
+            "total_bits": 24,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,X4",
+            "total_bits": 32,
+            "bits_opcode": 8,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "rr",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,Y3",
+            "total_bits": 24,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,Y4",
+            "total_bits": 32,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,Y5",
+            "total_bits": 40,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "mm",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "rr",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        },
+        {
+            "nombre": "IND,X3b",
+            "total_bits": 24,
+            "bits_opcode": 16,
+            "campos_operandos": [
+                {
+                    "nombre": "ff",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        }
+    ],
+    "set_de_instrucciones": [
+        {
+            "mnemonico": "TEST",
+            "opcode": "00000000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "TEST (Only in Test Modes)",
+            "campos": {}
+        },
+        {
+            "mnemonico": "NOP",
+            "opcode": "00000001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "No operation",
+            "campos": {}
+        },
+        {
+            "mnemonico": "IDIV",
+            "opcode": "00000010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Integer Divide 16 by 16",
+            "campos": {}
+        },
+        {
+            "mnemonico": "FDIV",
+            "opcode": "00000011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Fractional Divide 16 by 16",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSRD",
+            "opcode": "00000100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Right Double",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ASLD",
+            "opcode": "00000101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Arithmetic Shift Left D",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TAP",
+            "opcode": "00000110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer A to CC Register",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TPA",
+            "opcode": "00000111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer CC Register to A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "INX",
+            "opcode": "00001000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Increment Index Register X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "DEX",
+            "opcode": "00001001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Decrement Index Register X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CLV",
+            "opcode": "00001010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Clear Overflow Flag",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SEV",
+            "opcode": "00001011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Set Overflow Flag",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CLC",
+            "opcode": "00001100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Clear Carry Bit",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SEC",
+            "opcode": "00001101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Set Carry",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CLI",
+            "opcode": "00001110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Clear Interrupt Mask",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SEI",
+            "opcode": "00001111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Set Interrupt Mask",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSLD",
+            "opcode": "00000101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Left Double",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SBA",
+            "opcode": "00010000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Subtract B from A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CBA",
+            "opcode": "00010001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Compare A to B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "BRSET",
+            "opcode": "00010010",
+            "formato": "DIR4",
+            "mapeo_operandos": "$dd $mm $rr",
+            "descripcion": "Branch if Bit(s) Set",
+            "campos": {
+                "dd": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BRCLR",
+            "opcode": "00010011",
+            "formato": "DIR4",
+            "mapeo_operandos": "$dd $mm $rr",
+            "descripcion": "Branch if Bit(s) Clear",
+            "campos": {
+                "dd": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BSET",
+            "opcode": "00010100",
+            "formato": "DIR3b",
+            "mapeo_operandos": "$dd $mm",
+            "descripcion": "Set Bit(s)",
+            "campos": {
+                "dd": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "BCLR",
+            "opcode": "00010101",
+            "formato": "DIR3b",
+            "mapeo_operandos": "$dd $mm",
+            "descripcion": "Clear Bit(s)",
+            "campos": {
+                "dd": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "TAB",
+            "opcode": "00010110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer A to B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TBA",
+            "opcode": "00010111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer B to A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "INY",
+            "opcode": "0001100000001000",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Increment Index Register Y",
+            "campos": {}
+        },
+        {
+            "mnemonico": "DEY",
+            "opcode": "0001100000001001",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Decrement Index Register X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "BSET?",
+            "opcode": "0001100000011100",
+            "formato": "IND,Y4",
+            "mapeo_operandos": "$ff,Y $mm",
+            "descripcion": "Set Bit(s)",
+            "campos": {
+                "ff": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "BCLR?",
+            "opcode": "0001100000011101",
+            "formato": "IND,Y4",
+            "mapeo_operandos": "$ff,Y $mm",
+            "descripcion": "Clear Bit(s)",
+            "campos": {
+                "ff": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "BRSET?",
+            "opcode": "0001100000011110",
+            "formato": "IND,Y5",
+            "mapeo_operandos": "$ff,Y $mm $rr",
+            "descripcion": "Branch if Bit(s) Set",
+            "campos": {
+                "ff": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BRCLR?",
+            "opcode": "0001100000011111",
+            "formato": "IND,Y5",
+            "mapeo_operandos": "$ff,Y $mm $rr",
+            "descripcion": "Branch if Bit(s) Clear",
+            "campos": {
+                "ff": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "TSY",
+            "opcode": "0001100000110000",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer Stack Pointer to Y",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TYS",
+            "opcode": "0001100000110101",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer Y to Stack Pointer",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PULY",
+            "opcode": "0001100000111000",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Pull Y from Stack (Hi First)",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ABY",
+            "opcode": "0001100000111010",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Add B to Y",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PSHY",
+            "opcode": "0001100000111100",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Push Y onto Stack (Lo First)",
+            "campos": {}
+        },
+        {
+            "mnemonico": "NEG",
+            "opcode": "0001100001100000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Two’s Complement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "COM",
+            "opcode": "0001100001100011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Ones Complement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LSR",
+            "opcode": "0001100001100100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Logical Shift Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ROR",
+            "opcode": "0001100001100110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Rotate Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ASR",
+            "opcode": "0001100001100111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Arithmetic Shift Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ASL",
+            "opcode": "0001100001101000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Arithmetic Shift Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ROL",
+            "opcode": "0001100001101001",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Rotate Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "DEC",
+            "opcode": "0001100001101010",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Decrement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "INC",
+            "opcode": "0001100001101100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Increment Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "TST",
+            "opcode": "0001100001101101",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Test for Zero or Minus",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "JMP",
+            "opcode": "0001100001101110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Jump",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CLR",
+            "opcode": "0001100001101111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Clear Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPY",
+            "opcode": "0001100010001100",
+            "formato": "IMM4",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "XGDY",
+            "opcode": "0001100010001111",
+            "formato": "INH2",
+            "mapeo_operandos": "?",
+            "descripcion": "Exchange D with Y",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CPY?",
+            "opcode": "0001100010011100",
+            "formato": "DIR3",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SUBA",
+            "opcode": "0001100010100000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Subtract Memory from A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CMPA",
+            "opcode": "0001100010100001",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Compare A to Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SBCA",
+            "opcode": "0001100010100010",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Subtract with Carry from A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SUBD",
+            "opcode": "0001100010100011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Subtract Memory from D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ANDA",
+            "opcode": "0001100010100100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "AND A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "BITA",
+            "opcode": "0001100010100101",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Bit(s) Test A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDAA",
+            "opcode": "0001100010100110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Accumulator A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STAA",
+            "opcode": "0001100010100111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Store Accumulator A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "EORA",
+            "opcode": "0001100010101000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Exclusive OR A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADCA",
+            "opcode": "0001100010101001",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Add with Carry to A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ORAA",
+            "opcode": "0001100010101010",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "OR Accumulator A (Inclusive)",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDA",
+            "opcode": "0001100010101011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Add Memory to A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPY??",
+            "opcode": "0001100010101100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "JSR",
+            "opcode": "0001100010101101",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Jump to Subroutine",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDS",
+            "opcode": "0001100010101110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Stack Pointer",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STS",
+            "opcode": "0001100010101111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Store Stack Pointer",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPY???",
+            "opcode": "0001100010111100",
+            "formato": "EXT4",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDY",
+            "opcode": "0001100011001110",
+            "formato": "IMM4",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Load Index Register Y",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "LDY?",
+            "opcode": "0001100011011110",
+            "formato": "DIR3",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Index Register Y",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STY",
+            "opcode": "0001100011011111",
+            "formato": "DIR3",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Index Register Y",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SUBB",
+            "opcode": "0001100011100000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Subtract Memory from B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CMPB",
+            "opcode": "0001100011100001",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Compare B to Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SBCB",
+            "opcode": "0001100011100010",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Subtract with Carry from B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDD",
+            "opcode": "0001100011100011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ANDB",
+            "opcode": "0001100011100100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "AND B with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "BITB",
+            "opcode": "0001100011100101",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Bit(s) Test B with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDAB",
+            "opcode": "0001100011100110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Accumulator B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STAB",
+            "opcode": "0001100011100111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Store Accumulator B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "EORB",
+            "opcode": "0001100011101000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Exclusive OR B \nwith Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADCB",
+            "opcode": "0001100011101001",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Add with Carry to B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ORAB",
+            "opcode": "0001100011101010",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "OR Accumulator B (Inclusive)",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDB",
+            "opcode": "0001100011101011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Add Memory to B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDD",
+            "opcode": "0001100011101100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Double Accumulator D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STD",
+            "opcode": "0001100011101101",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Sore Accumulator D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDY??",
+            "opcode": "0001100011101110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Index Register Y",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STY?",
+            "opcode": "0001100011101111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Store Index Register Y",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDY???",
+            "opcode": "0001100011111110",
+            "formato": "EXT4",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Index Register Y",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STY??",
+            "opcode": "0001100011111111",
+            "formato": "EXT4",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Index Register Y",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "DAA",
+            "opcode": "00011001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Decimal Adjust A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CPD",
+            "opcode": "0001101010000011",
+            "formato": "IMM4",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Compare D to Memory 16-Bit",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "CPD?",
+            "opcode": "0001101010010011",
+            "formato": "DIR3",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Compare D to Memory 16-Bit",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "CPD??",
+            "opcode": "0001101010100011",
+            "formato": "IND,X3b",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Compare D to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPY????",
+            "opcode": "0001101010101100",
+            "formato": "IND,X3b",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPD???",
+            "opcode": "0001101010110011",
+            "formato": "EXT4",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Compare D to Memory 16-Bit",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDY????",
+            "opcode": "0001101011101110",
+            "formato": "IND,X3b",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Index Register Y",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STY???",
+            "opcode": "0001101011101111",
+            "formato": "IND,X3b",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Index Register Y",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ABA",
+            "opcode": "00011011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Add Accumulators",
+            "campos": {}
+        },
+        {
+            "mnemonico": "BSET??",
+            "opcode": "00011100",
+            "formato": "IND,X3",
+            "mapeo_operandos": "$ff,X $mm",
+            "descripcion": "Set Bit(s)",
+            "campos": {
+                "ff": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "BCLR??",
+            "opcode": "00011101",
+            "formato": "IND,X3",
+            "mapeo_operandos": "$ff,X $mm",
+            "descripcion": "Clear Bit(s)",
+            "campos": {
+                "ff": "",
+                "mm": ""
+            }
+        },
+        {
+            "mnemonico": "BRSET??",
+            "opcode": "00011110",
+            "formato": "IND,X4",
+            "mapeo_operandos": "$ff,X $mm $rr",
+            "descripcion": "Branch if Bit(s) Set",
+            "campos": {
+                "ff": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BRCLR??",
+            "opcode": "00011111",
+            "formato": "IND,X4",
+            "mapeo_operandos": "$ff,X $mm $rr",
+            "descripcion": "Branch if Bit(s) Clear",
+            "campos": {
+                "ff": "",
+                "mm": "",
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BRA",
+            "opcode": "00100000",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch Always",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BRN",
+            "opcode": "00100001",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch Never",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BHI",
+            "opcode": "00100010",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Higher",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BLS",
+            "opcode": "00100011",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Lower or Same",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BCC",
+            "opcode": "00100100",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Carry Clear",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BHS",
+            "opcode": "00100100",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Higher or Same",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BCS",
+            "opcode": "00100101",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Carry Set",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BLO",
+            "opcode": "00100101",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Lower",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BNE",
+            "opcode": "00100110",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if not = Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BEQ",
+            "opcode": "00100111",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if = Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BVC",
+            "opcode": "00101000",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Overflow Clear",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BVS",
+            "opcode": "00101001",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Overflow Set",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BPL",
+            "opcode": "00101010",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Plus",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BMI",
+            "opcode": "00101011",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if Minus",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BGE",
+            "opcode": "00101100",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if >= Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BLT",
+            "opcode": "00101101",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if < Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BGT",
+            "opcode": "00101110",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if > Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "BLE",
+            "opcode": "00101111",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch if <= Zero",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "TSX",
+            "opcode": "00110000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer Stack Pointer to X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "INS",
+            "opcode": "00110001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Increment Stack Pointer",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PULA",
+            "opcode": "00110010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Pull A from Stack",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PULB",
+            "opcode": "00110011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Pull B from Stack",
+            "campos": {}
+        },
+        {
+            "mnemonico": "DES",
+            "opcode": "00110100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Decrement Stack Pointer",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TXS",
+            "opcode": "00110101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Transfer X to Stack Pointer",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PSHA",
+            "opcode": "00110110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Push A onto Stack",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PSHB",
+            "opcode": "00110111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Push B onto Stack",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PULX",
+            "opcode": "00111000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Pull X From \nStack (Hi \nFirst)",
+            "campos": {}
+        },
+        {
+            "mnemonico": "RTS",
+            "opcode": "00111001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Return from Subroutine",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ABX",
+            "opcode": "00111010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Add B to X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "RTI",
+            "opcode": "00111011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Return from Interrupt",
+            "campos": {}
+        },
+        {
+            "mnemonico": "PSHX",
+            "opcode": "00111100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Push X onto Stack (Lo First)",
+            "campos": {}
+        },
+        {
+            "mnemonico": "MUL",
+            "opcode": "00111101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Multiply 8 by 8",
+            "campos": {}
+        },
+        {
+            "mnemonico": "WAI",
+            "opcode": "00111110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Wait for Interrupt",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SWI",
+            "opcode": "00111111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Software Interrupt",
+            "campos": {}
+        },
+        {
+            "mnemonico": "NEGA",
+            "opcode": "01000000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Two’s Complement A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "COMA",
+            "opcode": "01000011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Ones Complement A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSRA",
+            "opcode": "01000100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Right A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "RORA",
+            "opcode": "01000110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Rotate Right A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ASRA",
+            "opcode": "01000111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Arithmetic Shift Right A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ASLA",
+            "opcode": "01001000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Arithmetic Shift Left A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSLA",
+            "opcode": "01001000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Left A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ROLA",
+            "opcode": "01001001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Rotate Left A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "DECA",
+            "opcode": "01001010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Decrement Accumulator A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "INCA",
+            "opcode": "01001100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Increment Accumulator A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TSTA",
+            "opcode": "01001101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Test A for Zero or Minus",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CLRA",
+            "opcode": "01001111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Clear Accumulator A",
+            "campos": {}
+        },
+        {
+            "mnemonico": "NEGB",
+            "opcode": "01010000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Two’s Complement B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "COMB",
+            "opcode": "01010011",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Ones Complement B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSRB",
+            "opcode": "01010100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Right B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "RORB",
+            "opcode": "01010110",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Rotate Right B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ASRB",
+            "opcode": "01010111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Arithmetic Shift Right B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ASLB",
+            "opcode": "01011000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Arithmetic Shift Left B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "LSLB",
+            "opcode": "01011000",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Logical Shift Left B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "ROLB",
+            "opcode": "01011001",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Rotate Left B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "DECB",
+            "opcode": "01011010",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Decrement Accumulator B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "INCB",
+            "opcode": "01011100",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Increment Accumulator B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "TSTB",
+            "opcode": "01011101",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Test B for Zero or Minus",
+            "campos": {}
+        },
+        {
+            "mnemonico": "CLRB",
+            "opcode": "01011111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Clear Accumulator B",
+            "campos": {}
+        },
+        {
+            "mnemonico": "NEG?",
+            "opcode": "01100000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Two’s Complement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "COM?",
+            "opcode": "01100011",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Ones Complement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LSR?",
+            "opcode": "01100100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Logical Shift Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ROR?",
+            "opcode": "01100110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Rotate Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ASR?",
+            "opcode": "01100111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Arithmetic Shift Right",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ASL?",
+            "opcode": "01101000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Arithmetic Shift Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LSL?",
+            "opcode": "01101000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Logical Shift Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LSL",
+            "opcode": "0001100001101000",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Logical Shift Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ROL?",
+            "opcode": "01101001",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Rotate Left",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "DEC?",
+            "opcode": "01101010",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Decrement Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "INC?",
+            "opcode": "01101100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Increment Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "TST?",
+            "opcode": "01101101",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Test for Zero or Minus",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "JMP?",
+            "opcode": "01101110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Jump",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CLR?",
+            "opcode": "01101111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Clear Memory Byte",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "NEG??",
+            "opcode": "01110000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Two’s Complement Memory Byte",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "COM??",
+            "opcode": "01110011",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Ones Complement Memory Byte",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LSR??",
+            "opcode": "01110100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Logical Shift Right",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ROR??",
+            "opcode": "01110110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Rotate Right",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ASR??",
+            "opcode": "01110111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Arithmetic Shift Right",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ASL??",
+            "opcode": "01111000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Arithmetic Shift Left",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LSL??",
+            "opcode": "01111000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Logical Shift Left",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ROL??",
+            "opcode": "01111001",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Rotate Left",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "DEC??",
+            "opcode": "01111010",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Decrement Memory Byte",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "INC??",
+            "opcode": "01111100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Increment Memory Byte",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "TST??",
+            "opcode": "01111101",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Test for Zero or Minus",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "JMP??",
+            "opcode": "01111110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Jump",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "CLR??",
+            "opcode": "01111111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Clear Memory Byte",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "SUBA?",
+            "opcode": "10000000",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Subtract Memory from A",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "CMPA?",
+            "opcode": "10000001",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Compare A to Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "SBCA?",
+            "opcode": "10000010",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Subtract with Carry from A",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "SUBD?",
+            "opcode": "10000011",
+            "formato": "IMM3",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Subtract Memory from D",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "ANDA?",
+            "opcode": "10000100",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "ND A with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "BITA?",
+            "opcode": "10000101",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Bit(s) Test A with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "LDAA?",
+            "opcode": "10000110",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Load Accumulator A",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "EORA?",
+            "opcode": "10001000",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Exclusive OR A with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ADCA?",
+            "opcode": "10001001",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Add with Carry to A",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ORAA?",
+            "opcode": "10001010",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "OR Accumulator A (Inclusive)",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ADDA?",
+            "opcode": "10001011",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Add Memory to A",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "CPX",
+            "opcode": "10001100",
+            "formato": "IMM3",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Compare X to Memory 16-Bit",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "BSR",
+            "opcode": "10001101",
+            "formato": "REL",
+            "mapeo_operandos": "$rr",
+            "descripcion": "Branch to Subroutine",
+            "campos": {
+                "rr": ""
+            }
+        },
+        {
+            "mnemonico": "LDS?",
+            "opcode": "10001110",
+            "formato": "IMM3",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Load Stack Pointer",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "XGDX",
+            "opcode": "10001111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Exchange D with X",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SUBA??",
+            "opcode": "10010000",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Subtract Memory from A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "CMPA??",
+            "opcode": "10010001",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Compare A to Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SBCA??",
+            "opcode": "10010010",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Subtract with Carry from A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SUBD??",
+            "opcode": "10010011",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Subtract Memory from D",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ANDA??",
+            "opcode": "10010100",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "AND A with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "BITA??",
+            "opcode": "10010101",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Bit(s) Test A with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "LDAA??",
+            "opcode": "10010110",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Accumulator A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STAA?",
+            "opcode": "10010111",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Accumulator A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "EORA??",
+            "opcode": "10011000",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Exclusive OR A with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ADCA??",
+            "opcode": "10011001",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Add with Carry to A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ORAA??",
+            "opcode": "10011010",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "OR Accumulator A (Inclusive)",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ADDA??",
+            "opcode": "10011011",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Add Memory to A",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "CPX?",
+            "opcode": "10011100",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Compare X to Memory 16-Bit",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "JSR?",
+            "opcode": "10011101",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Jump to Subroutine",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "LDS??",
+            "opcode": "10011110",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Stack Pointer",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STS?",
+            "opcode": "10011111",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Stack Pointer",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SUBA???",
+            "opcode": "10100000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Subtract Memory from A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CMPA???",
+            "opcode": "10100001",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Compare A to Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SBCA???",
+            "opcode": "10100010",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Subtract with Carry from A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SUBD???",
+            "opcode": "10100011",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Subtract Memory from D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ANDA???",
+            "opcode": "10100100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "AND A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "BITA???",
+            "opcode": "10100101",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Bit(s) Test A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDAA???",
+            "opcode": "10100110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Accumulator A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STAA??",
+            "opcode": "10100111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Accumulator A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "EORA???",
+            "opcode": "10101000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Exclusive OR A with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADCA???",
+            "opcode": "10101001",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add with Carry to A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ORAA???",
+            "opcode": "10101010",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "OR Accumulator A (Inclusive)",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDA???",
+            "opcode": "10101011",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add Memory to A",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPX??",
+            "opcode": "10101100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Compare X to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "JSR??",
+            "opcode": "10101101",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Jump to Subroutine",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDS???",
+            "opcode": "10101110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Stack Pointer",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STS??",
+            "opcode": "10101111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Stack Pointer",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SUBA????",
+            "opcode": "10110000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Subtract Memory from A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "CMPA????",
+            "opcode": "10110001",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Compare A to Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "SBCA????",
+            "opcode": "10110010",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Subtract with Carry from A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "SUBD????",
+            "opcode": "10110011",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Subtract Memory from D",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ANDA????",
+            "opcode": "10110100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "AND A with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "BITA????",
+            "opcode": "10110101",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Bit(s) Test A with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDAA????",
+            "opcode": "10110110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Accumulator A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STAA???",
+            "opcode": "10110111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Accumulator A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "EORA????",
+            "opcode": "10111000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Exclusive OR A with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ADCA????",
+            "opcode": "10111001",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Add with Carry to A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ORAA????",
+            "opcode": "10111010",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "OR Accumulator A (Inclusive)",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ADDA????",
+            "opcode": "10111011",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Add Memory to A",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "CPX???",
+            "opcode": "10111100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Compare X to Memory 16-Bit",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "JSR???",
+            "opcode": "10111101",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Jump to Subroutine",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDS????",
+            "opcode": "10111110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Stack Pointer",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STS???",
+            "opcode": "10111111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Stack Pointer",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "SUBB?",
+            "opcode": "11000000",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Subtract Memory from B",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "CMPB?",
+            "opcode": "11000001",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Compare B to Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "SBCB?",
+            "opcode": "11000010",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Subtract with Carry from B",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ADDD?",
+            "opcode": "11000011",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ANDB?",
+            "opcode": "11000100",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "AND B with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "BITB?",
+            "opcode": "11000101",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Bit(s) Test B with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "LDAB?",
+            "opcode": "11000110",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Load Accumulator B",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "EORB?",
+            "opcode": "11001000",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Exclusive OR B with Memory",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ADCB?",
+            "opcode": "11001001",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Add with Carry to B",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ORAB?",
+            "opcode": "11001010",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "OR Accumulator B (Inclusive)",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "ADDB?",
+            "opcode": "11001011",
+            "formato": "IMM2",
+            "mapeo_operandos": "#ii",
+            "descripcion": "Add Memory to B",
+            "campos": {
+                "ii": ""
+            }
+        },
+        {
+            "mnemonico": "LDD?",
+            "opcode": "11001100",
+            "formato": "IMM3",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Load Double Accumulator D",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "CPD????",
+            "opcode": "1100110110100011",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Compare Y to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CPX????",
+            "opcode": "1100110110101100",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Compare X to Memory 16-Bit",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDX",
+            "opcode": "1100110111101110",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Load Index Register X",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STX",
+            "opcode": "1100110111101111",
+            "formato": "IND,Y3",
+            "mapeo_operandos": "$ff,Y",
+            "descripcion": "Store Index Register X",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDX?",
+            "opcode": "11001110",
+            "formato": "IMM3",
+            "mapeo_operandos": "#jjkk",
+            "descripcion": "Load Index Register X",
+            "campos": {
+                "jj": "",
+                "kk": ""
+            }
+        },
+        {
+            "mnemonico": "STOP",
+            "opcode": "11001111",
+            "formato": "INH1",
+            "mapeo_operandos": "?",
+            "descripcion": "Stop Internal Clocks",
+            "campos": {}
+        },
+        {
+            "mnemonico": "SUBB??",
+            "opcode": "11010000",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Subtract Memory from B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "CMPB??",
+            "opcode": "11010001",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Compare B to Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SBCB??",
+            "opcode": "11010010",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Subtract with Carry from B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ADDD??",
+            "opcode": "11010011",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ANDB??",
+            "opcode": "11010100",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "AND B with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "BITB??",
+            "opcode": "11010101",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Bit(s) Test B with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "LDAB??",
+            "opcode": "11010110",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Accumulator B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STAB?",
+            "opcode": "11010111",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Accumulator B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "EORB??",
+            "opcode": "11011000",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Exclusive OR B with Memory",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ADCB??",
+            "opcode": "11011001",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Add with Carry to B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ORAB??",
+            "opcode": "11011010",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "OR Accumulator B (Inclusive)",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "ADDB??",
+            "opcode": "11011011",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Add Memory to B",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "LDD??",
+            "opcode": "11011100",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Double Accumulator D",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STD?",
+            "opcode": "11011101",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Accumulator D",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "LDX??",
+            "opcode": "11011110",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Load Index Register X",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "STX?",
+            "opcode": "11011111",
+            "formato": "DIR2",
+            "mapeo_operandos": "$dd",
+            "descripcion": "Store Index Register X",
+            "campos": {
+                "dd": ""
+            }
+        },
+        {
+            "mnemonico": "SUBB???",
+            "opcode": "11100000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$$f,X",
+            "descripcion": "Subtract Memory from B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "CMPB???",
+            "opcode": "11100001",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Compare B to Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SBCB???",
+            "opcode": "11100010",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Subtract with Carry from B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDD???",
+            "opcode": "11100011",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ANDB???",
+            "opcode": "11100100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "BITB???",
+            "opcode": "11100101",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Bit(s) Test B with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDAB???",
+            "opcode": "11100110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Accumulator B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STAB??",
+            "opcode": "11100111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Accumulator B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "EORB???",
+            "opcode": "11101000",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Exclusive OR B with Memory",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADCB???",
+            "opcode": "11101001",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add with Carry to B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ORAB???",
+            "opcode": "11101010",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "OR Accumulator B (Inclusive)",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "ADDB???",
+            "opcode": "11101011",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Add Memory to B",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDD???",
+            "opcode": "11101100",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Double Accumulator D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STD??",
+            "opcode": "11101101",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Accumulator D",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "LDX???",
+            "opcode": "11101110",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Load Index Register X",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "STX??",
+            "opcode": "11101111",
+            "formato": "IND,X2",
+            "mapeo_operandos": "$ff,X",
+            "descripcion": "Store Index Register X",
+            "campos": {
+                "ff": ""
+            }
+        },
+        {
+            "mnemonico": "SUBB????",
+            "opcode": "11110000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Subtract Memory from B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "CMPB????",
+            "opcode": "11110001",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Compare B to Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "SBCB????",
+            "opcode": "11110010",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Subtract with Carry from B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ADDD????",
+            "opcode": "11110011",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Add 16-Bit to D",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ANDB????",
+            "opcode": "11110100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "AND B with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "BITB????",
+            "opcode": "11110101",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Bit(s) Test B with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDAB????",
+            "opcode": "11110110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Accumulator B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STAB???",
+            "opcode": "11110111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Accumulator B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "EORB????",
+            "opcode": "11111000",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Exclusive OR B with Memory",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ADCB????",
+            "opcode": "11111001",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Add with Carry to B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ORAB????",
+            "opcode": "11111010",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "OR Accumulator B (Inclusive)",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "ADDB????",
+            "opcode": "11111011",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Add Memory to B",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDD????",
+            "opcode": "11111100",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Double Accumulator D",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STD???",
+            "opcode": "11111101",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Accumulator D",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "LDX????",
+            "opcode": "11111110",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Load Index Register X",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        },
+        {
+            "mnemonico": "STX???",
+            "opcode": "11111111",
+            "formato": "EXT3",
+            "mapeo_operandos": "$hhll",
+            "descripcion": "Store Index Register X",
+            "campos": {
+                "hh": "",
+                "ll": ""
+            }
+        }
+    ],
+    "codigo": []
+}

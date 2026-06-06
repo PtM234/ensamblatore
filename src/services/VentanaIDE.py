@@ -82,6 +82,10 @@ class VentanaIDE:
                                        command=self.nuevo_codigo,
                                        accelerator="Ctrl+N",
                                        state="disabled")
+        self._menu_archivo.add_command(label="Abrir código .asm",
+                                       command=self.abrir_codigo,
+                                       accelerator="Ctrl+O",
+                                       state="disabled")
         self._menu_archivo.add_command(label="Cerrar pestaña",
                                        command=self._cerrar_pestana_actual,
                                        accelerator="Ctrl+W")
@@ -111,6 +115,7 @@ class VentanaIDE:
         # Atajos
         self.root.bind("<Control-t>", lambda e: self._nueva_pestana())
         self.root.bind("<Control-n>", lambda e: self.nuevo_codigo())
+        self.root.bind("<Control-o>", lambda e: self.abrir_codigo())
         self.root.bind("<Control-w>", lambda e: self._cerrar_pestana_actual())
         self.root.bind("<Control-s>", lambda e: self.guardar())
         self.root.bind("<F5>",        lambda e: self.ensamblar())
@@ -123,16 +128,16 @@ class VentanaIDE:
         toolbar = ttk.Frame(self.root, relief="raised")
         toolbar.pack(side="top", fill="x", padx=2, pady=2)
 
-        ttk.Button(toolbar, text="💾 Guardar",
+        ttk.Button(toolbar, text="Guardar",
                    command=self.guardar).pack(side="left", padx=4, pady=2)
-        ttk.Button(toolbar, text="📂 Guardar como…",
+        ttk.Button(toolbar, text="Guardar como...",
                    command=self.guardar_como).pack(side="left", padx=4, pady=2)
 
         ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
 
-        ttk.Button(toolbar, text="⚙️ Ensamblar",
+        ttk.Button(toolbar, text="Ensamblar",
                    command=self.ensamblar).pack(side="left", padx=4, pady=2)
-        ttk.Button(toolbar, text="📋 Instrucciones",
+        ttk.Button(toolbar, text="Instrucciones",
                    command=self._abrir_instrucciones).pack(side="left", padx=4, pady=2)
 
         ttk.Separator(toolbar, orient="vertical").pack(side="left", fill="y", padx=6)
@@ -319,7 +324,7 @@ class VentanaIDE:
 
         p = tab.procesador
 
-        self._segmento(tab.frame_info, "⚙️ Configuración", [
+        self._segmento(tab.frame_info, "Configuración", [
             f"Nombre:          {p.nombre}",
             f"Palabra:         {p.tamano_palabra} bits",
             f"Distribución:    {p.distribucion_memorias}",
@@ -335,17 +340,21 @@ class VentanaIDE:
 
         lineas_fmt = []
         for fmt in p.formato_de_sintaxis:
-            lineas_fmt.append(f"▸ {fmt.get('nombre','?')}  ({fmt.get('total_bits','?')} bits)")
-            lineas_fmt.append(f"  Opcode: {fmt.get('bits_opcode','?')} bits")
+            lectura = fmt.get("lectura", "msb_primero")
+            flecha  = "MSB→LSB" if lectura == "msb_primero" else "LSB→MSB"
+            lineas_fmt.append(f"▸ {fmt.get('nombre','?')}  ({fmt.get('total_bits','?')} bits, {flecha})")
             for campo in fmt.get("campos_operandos", []):
                 if isinstance(campo, list):
                     lineas_fmt.append(f"  • {campo[0]} ({campo[1]} bits)")
                 else:
                     natural = {str(i): i for i in range(campo["bits"])}
-                    sufijo  = "  ⇄" if campo.get("orden_bits", natural) != natural else ""
-                    lineas_fmt.append(f"  • {campo['nombre']} ({campo['bits']} bits){sufijo}")
+                    sufijo  = "  *" if campo.get("orden_bits", natural) != natural else ""
+                    tipo    = campo.get("tipo", "")
+                    tipo_str = f" [{tipo}]" if tipo else ""
+                    lineas_fmt.append(
+                        f"  • {campo['nombre']} ({campo['bits']} bits){tipo_str}{sufijo}")
             lineas_fmt.append("")
-        self._segmento(tab.frame_info, "📐 Formatos", lineas_fmt)
+        self._segmento(tab.frame_info, "Formatos", lineas_fmt)
 
         self._segmento_instrucciones_tab(tab.frame_info, tab)
         self._segmento_simbolos_tab(tab.frame_info, tab)
@@ -369,7 +378,7 @@ class VentanaIDE:
         txt.config(state="disabled")
 
     def _segmento_instrucciones_tab(self, parent, tab: TabData):
-        ttk.Label(parent, text="📜 Instrucciones",
+        ttk.Label(parent, text="Instrucciones",
                   font=("Arial", 9, "bold"),
                   background="#dde3ec").pack(fill="x", padx=4, pady=(6, 0))
         frame = ttk.Frame(parent)
@@ -382,13 +391,11 @@ class VentanaIDE:
                                       show="tree headings",
                                       yscrollcommand=sb_v.set,
                                       xscrollcommand=sb_h.set, height=10)
-        tab.tree_inst["columns"] = ("opcode", "mapeo")
+        tab.tree_inst["columns"] = ("mapeo",)
         tab.tree_inst.heading("#0",     text="Instrucción")
-        tab.tree_inst.heading("opcode", text="Opcode")
         tab.tree_inst.heading("mapeo",  text="Sintaxis")
-        tab.tree_inst.column("#0",     width=90,  minwidth=70)
-        tab.tree_inst.column("opcode", width=80,  minwidth=60)
-        tab.tree_inst.column("mapeo",  width=100, minwidth=70)
+        tab.tree_inst.column("#0",     width=100, minwidth=70)
+        tab.tree_inst.column("mapeo",  width=130, minwidth=80)
         tab.tree_inst.tag_configure("grupo", font=("Arial", 9, "bold"),
                                      foreground="#2c5f9e")
         tab.tree_inst.tag_configure("instr", font=("Courier New", 9))
@@ -417,12 +424,11 @@ class VentanaIDE:
             for inst in instrucciones:
                 tab.tree_inst.insert(gid, "end",
                                       text=f"  {inst.get('mnemonico','?')}",
-                                      values=(inst.get("opcode","?"),
-                                              inst.get("mapeo_operandos","")),
+                                      values=(inst.get("mapeo_operandos",""),),
                                       tags=("instr",))
 
     def _segmento_simbolos_tab(self, parent, tab: TabData):
-        ttk.Label(parent, text="🏷️ Tabla de símbolos",
+        ttk.Label(parent, text="Tabla de símbolos",
                   font=("Arial", 9, "bold"),
                   background="#dde3ec").pack(fill="x", padx=4, pady=(6, 0))
         frame = ttk.Frame(parent)
@@ -590,6 +596,7 @@ class VentanaIDE:
     def _actualizar_ui_con_procesador(self, tab: TabData):
         self.menubar.entryconfig("Formato", state="normal")
         self._menu_archivo.entryconfig("Nuevo código", state="normal")
+        self._menu_archivo.entryconfig("Abrir código .asm", state="normal")
         proc = tab.procesador.nombre if tab.procesador else ""
         n    = len(tab.procesador.set_de_instrucciones) if tab.procesador else 0
         self.lbl_toolbar.config(
@@ -598,6 +605,7 @@ class VentanaIDE:
     def _actualizar_ui_sin_procesador(self):
         self.menubar.entryconfig("Formato", state="disabled")
         self._menu_archivo.entryconfig("Nuevo código", state="disabled")
+        self._menu_archivo.entryconfig("Abrir código .asm", state="disabled")
         self.lbl_toolbar.config(text="")
 
     # ─────────────────────────────────────────────
@@ -633,6 +641,82 @@ class VentanaIDE:
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar el archivo:\n{e}")
+
+    def abrir_codigo(self):
+        """Abre un archivo de código en la pestaña actual.
+        El archivo puede ser JSON (con metadatos) o texto plano (retrocompatible)."""
+        tab = self._tab_actual()
+        if not tab:
+            return
+
+        if tab.hay_cambios:
+            r = messagebox.askyesnocancel(
+                "Cambios sin guardar",
+                "Tienes cambios sin guardar. ¿Deseas guardar antes de abrir otro archivo?"
+            )
+            if r is True:
+                self.guardar()
+            elif r is None:
+                return
+
+        ruta = filedialog.askopenfilename(
+            title="Abrir código ensamblador",
+            filetypes=[("Archivos ensamblador", "*.asm"),
+                       ("Archivos de texto", "*.txt"),
+                       ("Todos", "*.*")]
+        )
+        if not ruta:
+            return
+
+        try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                bruto = f.read()
+
+            codigo, proc_guardado = self._interpretar_archivo_codigo(bruto)
+
+            # Validar que el código corresponda al procesador cargado
+            if proc_guardado and tab.procesador:
+                if proc_guardado != tab.procesador.nombre:
+                    continuar = messagebox.askyesno(
+                        "Procesador distinto",
+                        f"Este código fue escrito para el procesador "
+                        f"'{proc_guardado}', pero la pestaña actual tiene "
+                        f"'{tab.procesador.nombre}'.\n\n"
+                        f"Ensamblarlo con un procesador distinto puede dar "
+                        f"resultados incorrectos.\n\n¿Deseas abrirlo de todas formas?"
+                    )
+                    if not continuar:
+                        return
+
+            tab.editor.delete("1.0", tk.END)
+            tab.editor.insert("1.0", codigo)
+            tab.ruta_asm    = ruta
+            tab.hay_cambios = False
+
+            self._actualizar_numeros(tab)
+            self._resaltar_sintaxis(tab)
+            self._actualizar_titulo_tab(tab)
+            self._limpiar_consola(tab)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el archivo: {e}")
+
+    def _interpretar_archivo_codigo(self, bruto: str):
+        """
+        Devuelve (codigo, nombre_procesador).
+        Si el archivo es JSON de Ensamblatore, extrae código y procesador.
+        Si es texto plano (formato viejo), devuelve el texto y None.
+        """
+        texto = bruto.strip()
+        if texto.startswith("{"):
+            try:
+                data = json.loads(bruto)
+                if isinstance(data, dict) and "codigo" in data:
+                    return data.get("codigo", ""), data.get("procesador", "")
+            except json.JSONDecodeError:
+                pass
+        # Texto plano: retrocompatibilidad con .asm antiguos
+        return bruto.rstrip("\n"), None
 
     def nuevo_codigo(self):
         """Limpia el editor de la pestaña actual."""
@@ -747,13 +831,13 @@ class VentanaIDE:
         try:
             binarios = ensamblador.ensamblar(codigo)
         except ErrorDeEnsamblado as e:
-            self._log(tab, f"✗  Error: {e}", "error")
+            self._log(tab, f"  Error: {e}", "error")
             return
         except Exception as e:
-            self._log(tab, f"✗  Error inesperado: {e}", "error")
+            self._log(tab, f"  Error inesperado: {e}", "error")
             return
 
-        self._log(tab, f"✔  Ensamblado exitoso — {len(binarios)} instrucción(es).", "ok")
+        self._log(tab, f"  Ensamblado exitoso — {len(binarios)} instrucción(es).", "ok")
         self._actualizar_tabla_simbolos_tab(tab, ensamblador.tabla_simbolos)
 
         direccion = tab.procesador.mapeo_memoria
@@ -761,6 +845,12 @@ class VentanaIDE:
         for b in binarios:
             self._log(tab, f"   0x{direccion:08X}  {b}  ({int(b,2):08X})", "info")
             direccion += paso
+
+        # Mostrar visualizador de binario
+        fuentes = [l["mnemonico"] + " " + ", ".join(l["operandos"])
+                   for l in ensamblador.lineas if l["mnemonico"]]
+        from services.VentanaBinario import VentanaBinario
+        VentanaBinario(self.root, tab.procesador, binarios, fuentes)
 
         self._guardar_salida(tab, ensamblador)
 
@@ -806,9 +896,9 @@ class VentanaIDE:
                 ensamblador.generar_mem(ruta)
             elif fmt == "coe":
                 ensamblador.generar_coe(ruta)
-            self._log(tab, f"✔  Guardado en: {ruta}", "ok")
+            self._log(tab, f"  Guardado en: {ruta}", "ok")
         except Exception as e:
-            self._log(tab, f"✗  Error al guardar: {e}", "error")
+            self._log(tab, f"  Error al guardar: {e}", "error")
 
     # ─────────────────────────────────────────────
     #  GUARDAR .ASM
@@ -841,9 +931,15 @@ class VentanaIDE:
 
     def _escribir_archivo(self, tab: TabData, ruta: str):
         try:
-            contenido = tab.editor.get("1.0", tk.END) if tab.editor else ""
+            contenido = tab.editor.get("1.0", tk.END).rstrip("\n") if tab.editor else ""
+            nombre_proc = tab.procesador.nombre if tab.procesador else ""
+            data = {
+                "tipo":       "ensamblatore_asm",
+                "procesador": nombre_proc,
+                "codigo":     contenido
+            }
             with open(ruta, "w", encoding="utf-8") as f:
-                f.write(contenido)
+                json.dump(data, f, indent=2, ensure_ascii=False)
             tab.hay_cambios = False
             self._actualizar_titulo_tab(tab)
         except Exception as e:

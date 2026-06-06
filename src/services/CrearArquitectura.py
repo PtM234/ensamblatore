@@ -114,21 +114,23 @@ class VentanaCrearArquitectura:
         self.prefijo_entry.insert(0, "x")
         self.prefijo_entry.grid(row=11, column=1, sticky="ew", padx=5)
 
-        ttk.Label(main_frame, text="  ej: x → x0, x1 ... xN",
+        ttk.Label(main_frame, text="  ej: x → x0, x1 ... xN  (vacío si no hay registros)",
                   foreground="gray").grid(row=12, column=1, sticky="w", padx=5)
 
         ttk.Label(main_frame, text="Número de registros:").grid(
             row=13, column=0, sticky="w", pady=4)
-        self.num_reg_spin = ttk.Spinbox(main_frame, from_=2, to=256, increment=1, width=29)
+        self.num_reg_spin = ttk.Spinbox(main_frame, from_=0, to=256, increment=1, width=29)
         self.num_reg_spin.set(32)
         self.num_reg_spin.grid(row=13, column=1, sticky="ew", padx=5)
+        ttk.Label(main_frame, text="  0 = procesador sin registros de propósito general",
+                  foreground="gray").grid(row=14, column=1, sticky="w", padx=5)
 
         # --- Botones ---
         ttk.Separator(main_frame, orient='horizontal').grid(
-            row=14, column=0, columnspan=2, sticky="ew", pady=12)
+            row=15, column=0, columnspan=2, sticky="ew", pady=12)
 
         btn_frame = ttk.Frame(main_frame)
-        btn_frame.grid(row=15, column=0, columnspan=2)
+        btn_frame.grid(row=16, column=0, columnspan=2)
 
         ttk.Button(btn_frame, text="Cancelar",
                    command=self.ventana.destroy).pack(side="left", padx=10)
@@ -172,9 +174,11 @@ class VentanaCrearArquitectura:
             aumento_pc      = int(self.aumento_pc_spin.get())
             endianness      = self.endianness_combo.get()
             prefijo         = self.prefijo_entry.get().strip()
-            if not prefijo:
-                raise ValueError("El prefijo de registro no puede estar vacío.")
             num_registros   = int(self.num_reg_spin.get())
+            if num_registros > 0 and not prefijo:
+                raise ValueError(
+                    "Si hay registros, el prefijo no puede estar vacío.\n"
+                    "Pon 0 registros si tu procesador no usa registros.")
 
             if self._modo_edicion:
                 # Actualizar el procesador existente preservando formatos e instrucciones

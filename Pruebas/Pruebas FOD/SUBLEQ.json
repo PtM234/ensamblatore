@@ -1,0 +1,79 @@
+{
+    "nombre": "SUBLEQ",
+    "tamano_palabra": 25,
+    "distribucion_memorias": "Harvard",
+    "profundidad": 1024,
+    "ancho": 8,
+    "tamano_minimo_direccionable": 8,
+    "mapeo_memoria": 0,
+    "aumento_pc": 1,
+    "endianess": "Little Endian",
+    "prefijo_registro": "x",
+    "num_registros": 1,
+    "formato_de_sintaxis": [
+        {
+            "nombre": "SUBLEQ",
+            "total_bits": 25,
+            "bits_opcode": 1,
+            "campos_operandos": [
+                {
+                    "nombre": "AddrA",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "AddrB",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                },
+                {
+                    "nombre": "AddrC",
+                    "bits": 8,
+                    "orden_bits": {
+                        "0": 0,
+                        "1": 1,
+                        "2": 2,
+                        "3": 3,
+                        "4": 4,
+                        "5": 5,
+                        "6": 6,
+                        "7": 7
+                    }
+                }
+            ]
+        }
+    ],
+    "set_de_instrucciones": [
+        {
+            "mnemonico": "SUBLEQ",
+            "opcode": "0",
+            "formato": "SUBLEQ",
+            "mapeo_operandos": "AddrA, AddrB, AddrC",
+            "descripcion": "Substract and jump if lesser equal",
+            "campos": {
+                "AddrA": "",
+                "AddrB": "",
+                "AddrC": ""
+            }
+        }
+    ],
+    "codigo": []
+}

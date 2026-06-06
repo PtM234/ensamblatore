@@ -5,6 +5,8 @@ from models.formato_instruccion import FormatoDeInstruccion
 
 
 class VentanaCrearFormatos:
+    TIPOS = ("opcode", "constante", "registro", "inmediato")
+
     def __init__(self, parent, controlador, procesador, mostrar_siguiente=False):
         self.controlador = controlador
         self.procesador = procesador
@@ -22,7 +24,6 @@ class VentanaCrearFormatos:
         self._construir_interfaz()
         self._cargar_formatos_existentes()
 
-        # Ajustar tamaño al contenido
         self.ventana.update_idletasks()
         self.ventana.geometry("")
 
@@ -49,20 +50,20 @@ class VentanaCrearFormatos:
         btn_fmt_frame = ttk.Frame(frame_izq)
         btn_fmt_frame.pack(fill="x", padx=5, pady=(0, 8))
 
-        ttk.Button(btn_fmt_frame, text="✏️ Editar",
+        ttk.Button(btn_fmt_frame, text="Editar",
                    command=self.editar_formato).pack(side="left", expand=True, fill="x", padx=(0, 2))
-        ttk.Button(btn_fmt_frame, text="🗑️ Eliminar",
+        ttk.Button(btn_fmt_frame, text="Eliminar",
                    command=self.eliminar_formato).pack(side="left", expand=True, fill="x", padx=(2, 2))
-        ttk.Button(btn_fmt_frame, text="▲",
+        ttk.Button(btn_fmt_frame, text="",
                    command=self.mover_formato_arriba).pack(side="left", padx=(2, 2))
-        ttk.Button(btn_fmt_frame, text="▼",
+        ttk.Button(btn_fmt_frame, text="",
                    command=self.mover_formato_abajo).pack(side="left", padx=(2, 0))
 
         # === DERECHA: CREAR / EDITAR FORMATO ===
         self.frame_der = ttk.LabelFrame(panel_principal, text="Nuevo Formato")
         self.frame_der.grid(row=0, column=1, sticky="nsew", padx=5)
 
-        # ── Nombre y Opcode ───────────────────────────────────────────
+        # ── Nombre y dirección de lectura ─────────────────────────────
         form_top = ttk.Frame(self.frame_der)
         form_top.pack(fill="x", padx=5, pady=5)
 
@@ -70,12 +71,18 @@ class VentanaCrearFormatos:
         self.nombre_fmt_entry = ttk.Entry(form_top, width=15)
         self.nombre_fmt_entry.grid(row=0, column=1, padx=5)
 
-        ttk.Label(form_top, text="Bits Opcode:").grid(row=1, column=0, sticky="w", pady=(4, 0))
-        self.bits_opcode_entry = ttk.Entry(form_top, width=5)
-        self.bits_opcode_entry.grid(row=1, column=1, padx=5, pady=(4, 0))
+        ttk.Label(form_top, text="Lectura:").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.lectura_combo = ttk.Combobox(
+            form_top, state="readonly", width=24,
+            values=["MSB primero (izq → der)", "LSB primero (der → izq)"])
+        self.lectura_combo.current(0)
+        self.lectura_combo.grid(row=1, column=1, padx=5, pady=(4, 0), sticky="w")
+        ttk.Label(form_top,
+                  text="MSB primero: el primer campo ocupa los bits más significativos.",
+                  foreground="gray").grid(row=2, column=0, columnspan=2, sticky="w", pady=(2, 0))
 
         ttk.Separator(self.frame_der, orient="horizontal").pack(fill="x", pady=8)
-        ttk.Label(self.frame_der, text="Agregar Campos (Operandos)",
+        ttk.Label(self.frame_der, text="Agregar Campos",
                   font=("Arial", 10, "bold")).pack()
 
         # ── Fila de entrada de campo ──────────────────────────────────
@@ -90,15 +97,31 @@ class VentanaCrearFormatos:
         self.bits_campo_entry = ttk.Entry(form_campos, width=5)
         self.bits_campo_entry.grid(row=0, column=3, padx=4)
 
-        ttk.Button(form_campos, text="+", width=3,
-                   command=self.agregar_campo_a_lista).grid(row=0, column=4, padx=4)
+        ttk.Label(form_campos, text="Tipo:").grid(row=1, column=0, sticky="w", pady=(4, 0))
+        self.tipo_campo_combo = ttk.Combobox(
+            form_campos, state="readonly", width=12, values=list(self.TIPOS))
+        self.tipo_campo_combo.current(2)  # "registro" por defecto
+        self.tipo_campo_combo.grid(row=1, column=1, columnspan=2, padx=4,
+                                   pady=(4, 0), sticky="w")
+
+        ttk.Button(form_campos, text="Agregar campo", width=14,
+                   command=self.agregar_campo_a_lista).grid(
+            row=1, column=3, padx=4, pady=(4, 0))
+
+        # Ayuda de tipos
+        ttk.Label(
+            form_campos,
+            text="opcode/constante = valor fijo en la instrucción   |   "
+                 "registro/inmediato = lo escribe el usuario",
+            foreground="gray", wraplength=380, justify="left"
+        ).grid(row=2, column=0, columnspan=4, sticky="w", pady=(4, 0))
 
         # ── Orden de bits ─────────────────────────────────────────────
         ttk.Label(form_campos,
                   text="Orden bits (ej: 1:0, 2:1, 11:4) — vacío = orden natural",
-                  foreground="gray").grid(row=1, column=0, columnspan=5, sticky="w", pady=(4, 0))
+                  foreground="gray").grid(row=3, column=0, columnspan=4, sticky="w", pady=(6, 0))
         self.orden_bits_entry = ttk.Entry(form_campos, width=40)
-        self.orden_bits_entry.grid(row=2, column=0, columnspan=5, sticky="ew", pady=2)
+        self.orden_bits_entry.grid(row=4, column=0, columnspan=4, sticky="ew", pady=2)
 
         # ── Lista de campos + botones por campo ───────────────────────
         self.lista_campos_view = tk.Listbox(self.frame_der, height=7,
@@ -108,13 +131,13 @@ class VentanaCrearFormatos:
         btn_campos_frame = ttk.Frame(self.frame_der)
         btn_campos_frame.pack(fill="x", padx=5, pady=(0, 4))
 
-        ttk.Button(btn_campos_frame, text="✏️ Editar",
+        ttk.Button(btn_campos_frame, text="Editar",
                    command=self.editar_campo_seleccionado).pack(side="left", padx=(0, 4))
-        ttk.Button(btn_campos_frame, text="🗑️ Eliminar",
+        ttk.Button(btn_campos_frame, text="Eliminar",
                    command=self.eliminar_campo_seleccionado).pack(side="left", padx=(0, 4))
-        ttk.Button(btn_campos_frame, text="▲",
+        ttk.Button(btn_campos_frame, text="",
                    command=self.mover_campo_arriba).pack(side="left", padx=(0, 2))
-        ttk.Button(btn_campos_frame, text="▼",
+        ttk.Button(btn_campos_frame, text="",
                    command=self.mover_campo_abajo).pack(side="left", padx=(0, 8))
         ttk.Button(btn_campos_frame, text="Limpiar todos",
                    command=self.limpiar_campos).pack(side="left")
@@ -128,7 +151,6 @@ class VentanaCrearFormatos:
 
         self.btn_cancelar_edicion = ttk.Button(self.frame_der, text="Cancelar edición",
                                                command=self._cancelar_edicion)
-        # Se muestra solo al editar
 
         # --- BOTONES INFERIORES ---
         btn_frame = ttk.Frame(self.ventana)
@@ -153,14 +175,30 @@ class VentanaCrearFormatos:
     #  AGREGAR / ELIMINAR CAMPO
     # ─────────────────────────────────────────────
 
+    def _lectura_valor(self):
+        """Devuelve 'msb_primero' o 'lsb_primero' según el combo."""
+        return "lsb_primero" if self.lectura_combo.current() == 1 else "msb_primero"
+
     def agregar_campo_a_lista(self):
         nombre    = self.nombre_campo_entry.get().strip()
         bits_str  = self.bits_campo_entry.get().strip()
+        tipo      = self.tipo_campo_combo.get()
         orden_str = self.orden_bits_entry.get().strip()
 
         if not nombre or not bits_str.isdigit():
             messagebox.showerror("Error", "Revisa el nombre y los bits del campo.")
             return
+        if tipo not in self.TIPOS:
+            messagebox.showerror("Error", "Selecciona un tipo de campo válido.")
+            return
+
+        # Solo puede haber un campo opcode por formato
+        if tipo == "opcode":
+            ya_hay = any(c.get("tipo") == "opcode" for c in self.lista_operandos_temporal)
+            if ya_hay:
+                messagebox.showerror(
+                    "Error", "Ya existe un campo de tipo opcode en este formato.")
+                return
 
         bits = int(bits_str)
 
@@ -170,22 +208,15 @@ class VentanaCrearFormatos:
             messagebox.showerror("Error en orden de bits", str(e))
             return
 
-        campo = {"nombre": nombre, "bits": bits, "orden_bits": orden_bits}
+        campo = {"nombre": nombre, "bits": bits, "tipo": tipo, "orden_bits": orden_bits}
         self.lista_operandos_temporal.append(campo)
-
-        natural = FormatoDeInstruccion.orden_natural(bits)
-        if orden_str and orden_bits != natural:
-            display = f"{nombre} ({bits} bits)  ⇄ {orden_str}"
-        else:
-            display = f"{nombre} ({bits} bits)  [orden natural]"
-        self.lista_campos_view.insert(tk.END, display)
+        self._refrescar_lista_campos()
 
         self.nombre_campo_entry.delete(0, tk.END)
         self.bits_campo_entry.delete(0, tk.END)
         self.orden_bits_entry.delete(0, tk.END)
 
     def eliminar_campo_seleccionado(self):
-        """Elimina el campo seleccionado en la lista sin borrar los demás."""
         seleccion = self.lista_campos_view.curselection()
         if not seleccion:
             messagebox.showinfo("Selección", "Selecciona un campo de la lista para eliminarlo.")
@@ -194,10 +225,9 @@ class VentanaCrearFormatos:
         nombre_campo = self.lista_operandos_temporal[indice]["nombre"]
         if messagebox.askyesno("Confirmar", f"¿Eliminar el campo '{nombre_campo}'?"):
             del self.lista_operandos_temporal[indice]
-            self.lista_campos_view.delete(indice)
+            self._refrescar_lista_campos()
 
     def editar_campo_seleccionado(self):
-        """Carga el campo seleccionado en el formulario de entrada para editarlo."""
         seleccion = self.lista_campos_view.curselection()
         if not seleccion:
             messagebox.showinfo("Selección", "Selecciona un campo para editarlo.")
@@ -205,16 +235,17 @@ class VentanaCrearFormatos:
         indice = seleccion[0]
         campo  = self.lista_operandos_temporal[indice]
 
-        # Poblar los entries con los datos del campo
         self.nombre_campo_entry.delete(0, tk.END)
         self.nombre_campo_entry.insert(0, campo["nombre"])
 
         self.bits_campo_entry.delete(0, tk.END)
         self.bits_campo_entry.insert(0, str(campo["bits"]))
 
-        # Reconstruir el texto de orden_bits desde el dict
+        tipo = campo.get("tipo", "registro")
+        if tipo in self.TIPOS:
+            self.tipo_campo_combo.current(self.TIPOS.index(tipo))
+
         self.orden_bits_entry.delete(0, tk.END)
-        from models.formato_instruccion import FormatoDeInstruccion
         natural = FormatoDeInstruccion.orden_natural(campo["bits"])
         if campo.get("orden_bits", natural) != natural:
             orden_str = ", ".join(
@@ -222,17 +253,16 @@ class VentanaCrearFormatos:
             )
             self.orden_bits_entry.insert(0, orden_str)
 
-        # Eliminar el campo de la lista temporal para que al presionar + se reemplace
         del self.lista_operandos_temporal[indice]
-        self.lista_campos_view.delete(indice)
+        self._refrescar_lista_campos()
 
     def mover_campo_arriba(self):
         seleccion = self.lista_campos_view.curselection()
         if not seleccion or seleccion[0] == 0:
             return
         i = seleccion[0]
-        # Intercambiar en la lista temporal
-        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i-1] =             self.lista_operandos_temporal[i-1], self.lista_operandos_temporal[i]
+        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i-1] = \
+            self.lista_operandos_temporal[i-1], self.lista_operandos_temporal[i]
         self._refrescar_lista_campos()
         self.lista_campos_view.selection_set(i - 1)
 
@@ -241,23 +271,24 @@ class VentanaCrearFormatos:
         if not seleccion or seleccion[0] >= len(self.lista_operandos_temporal) - 1:
             return
         i = seleccion[0]
-        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i+1] =             self.lista_operandos_temporal[i+1], self.lista_operandos_temporal[i]
+        self.lista_operandos_temporal[i], self.lista_operandos_temporal[i+1] = \
+            self.lista_operandos_temporal[i+1], self.lista_operandos_temporal[i]
         self._refrescar_lista_campos()
         self.lista_campos_view.selection_set(i + 1)
 
     def _refrescar_lista_campos(self):
         """Redibuja el Listbox de campos desde lista_operandos_temporal."""
-        from models.formato_instruccion import FormatoDeInstruccion
         self.lista_campos_view.delete(0, tk.END)
         for campo in self.lista_operandos_temporal:
             natural = FormatoDeInstruccion.orden_natural(campo["bits"])
+            tipo    = campo.get("tipo", "?")
             if campo.get("orden_bits", natural) != natural:
                 orden_str = ", ".join(
                     f"{k}:{v}" for k, v in sorted(
                         campo["orden_bits"].items(), key=lambda x: int(x[0])))
-                display = f"{campo['nombre']} ({campo['bits']} bits)  ⇄ {orden_str}"
+                display = f"{campo['nombre']:<8} {campo['bits']:>2}b  {tipo:<9} [{orden_str}]"
             else:
-                display = f"{campo['nombre']} ({campo['bits']} bits)  [orden natural]"
+                display = f"{campo['nombre']:<8} {campo['bits']:>2}b  {tipo:<9}"
             self.lista_campos_view.insert(tk.END, display)
 
     def limpiar_campos(self):
@@ -273,9 +304,10 @@ class VentanaCrearFormatos:
             nombre = self.nombre_fmt_entry.get().strip()
             if not nombre:
                 raise ValueError("El nombre del formato no puede estar vacío.")
+            if not self.lista_operandos_temporal:
+                raise ValueError("El formato debe tener al menos un campo.")
 
-            bits_op    = int(self.bits_opcode_entry.get())
-            total_bits = bits_op + sum(c["bits"] for c in self.lista_operandos_temporal)
+            total_bits = sum(c["bits"] for c in self.lista_operandos_temporal)
 
             if total_bits != self.procesador.tamano_palabra:
                 continuar = messagebox.askyesno(
@@ -286,7 +318,7 @@ class VentanaCrearFormatos:
                 if not continuar:
                     return
 
-            # Opción B: confirmar reordenamientos personalizados
+            # Confirmar reordenamientos personalizados
             campos_con_orden = [
                 c for c in self.lista_operandos_temporal
                 if c["orden_bits"] != FormatoDeInstruccion.orden_natural(c["bits"])
@@ -305,8 +337,8 @@ class VentanaCrearFormatos:
             nuevo_formato = FormatoDeInstruccion(
                 nombre=nombre,
                 total_bits=total_bits,
-                bits_opcode=bits_op,
-                campos_operandos=list(self.lista_operandos_temporal)
+                campos_operandos=list(self.lista_operandos_temporal),
+                lectura=self._lectura_valor()
             ).toDict()
 
             if self._indice_editando is not None:
@@ -320,13 +352,12 @@ class VentanaCrearFormatos:
             self._cargar_formatos_existentes()
             self.limpiar_campos()
             self.nombre_fmt_entry.delete(0, tk.END)
-            self.bits_opcode_entry.delete(0, tk.END)
 
         except ValueError as ve:
             messagebox.showerror("Error", f"Dato inválido: {ve}")
 
     # ─────────────────────────────────────────────
-    #  EDITAR
+    #  EDITAR FORMATO
     # ─────────────────────────────────────────────
 
     def editar_formato(self):
@@ -346,27 +377,25 @@ class VentanaCrearFormatos:
         self.nombre_fmt_entry.delete(0, tk.END)
         self.nombre_fmt_entry.insert(0, fmt.get("nombre", ""))
 
-        self.bits_opcode_entry.delete(0, tk.END)
-        self.bits_opcode_entry.insert(0, str(fmt.get("bits_opcode", "")))
+        # Dirección de lectura
+        lectura = fmt.get("lectura", "msb_primero")
+        self.lectura_combo.current(1 if lectura == "lsb_primero" else 0)
 
         self.limpiar_campos()
         for campo in fmt.get("campos_operandos", []):
             # Compatibilidad con formato viejo (lista) y nuevo (dict)
             if isinstance(campo, list):
-                c = {"nombre": campo[0], "bits": campo[1],
+                c = {"nombre": campo[0], "bits": campo[1], "tipo": "constante",
                      "orden_bits": FormatoDeInstruccion.orden_natural(campo[1])}
             else:
                 c = campo.copy()
                 if "orden_bits" not in c:
                     c["orden_bits"] = FormatoDeInstruccion.orden_natural(c["bits"])
-
+                if "tipo" not in c:
+                    c["tipo"] = "constante"
             self.lista_operandos_temporal.append(c)
-            natural = FormatoDeInstruccion.orden_natural(c["bits"])
-            if c["orden_bits"] != natural:
-                display = f"{c['nombre']} ({c['bits']} bits)  ⇄ personalizado"
-            else:
-                display = f"{c['nombre']} ({c['bits']} bits)  [orden natural]"
-            self.lista_campos_view.insert(tk.END, display)
+
+        self._refrescar_lista_campos()
 
     def _cancelar_edicion(self):
         self._indice_editando = None
@@ -375,10 +404,10 @@ class VentanaCrearFormatos:
         self.btn_cancelar_edicion.pack_forget()
         self.limpiar_campos()
         self.nombre_fmt_entry.delete(0, tk.END)
-        self.bits_opcode_entry.delete(0, tk.END)
+        self.lectura_combo.current(0)
 
     # ─────────────────────────────────────────────
-    #  ELIMINAR FORMATO
+    #  MOVER / ELIMINAR FORMATO
     # ─────────────────────────────────────────────
 
     def mover_formato_arriba(self):

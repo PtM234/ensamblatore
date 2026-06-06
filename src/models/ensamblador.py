@@ -10,19 +10,6 @@ class ErrorDeEnsamblado(Exception):
 
 
 class Ensamblador:
-    # Tabla de alias ABI de RISC-V → nombre con prefijo x
-    _ALIAS_ABI = {
-        "zero": "x0",  "ra": "x1",  "sp": "x2",  "gp": "x3",
-        "tp":   "x4",  "t0": "x5",  "t1": "x6",  "t2": "x7",
-        "s0":   "x8",  "fp": "x8",  "s1": "x9",  "a0": "x10",
-        "a1":   "x11", "a2": "x12", "a3": "x13", "a4": "x14",
-        "a5":   "x15", "a6": "x16", "a7": "x17", "s2": "x18",
-        "s3":   "x19", "s4": "x20", "s5": "x21", "s6": "x22",
-        "s7":   "x23", "s8": "x24", "s9": "x25", "s10": "x26",
-        "s11":  "x27", "t3": "x28", "t4": "x29", "t5": "x30",
-        "t6":   "x31",
-    }
-
     def __init__(self, procesador):
         self.procesador              = procesador
         self.tabla_simbolos          = {}
@@ -40,14 +27,55 @@ class Ensamblador:
         self._prefijo = procesador.prefijo_registro
         self._n_regs  = procesador.num_registros
 
+        # Alias de registros definidos por el usuario (ej. {"sp": "x2", "zero": "x0"})
+        # Se normalizan a minúsculas para búsqueda insensible a mayúsculas.
+        alias_def = getattr(procesador, "alias_registros", {}) or {}
+        self._alias = {k.lower(): v for k, v in alias_def.items()}
+
+        # Configuración de comentarios
+        com = getattr(procesador, "comentarios", None) or {}
+        self._com_linea  = com.get("linea", [";"]) or [";"]
+        self._com_bloque = com.get("bloque", []) or []
+
     # ─────────────────────────────────────────────
     #  PASO 0: PARSE
     # ─────────────────────────────────────────────
 
+    def _quitar_comentarios_bloque(self, texto: str) -> str:
+        """
+        Elimina comentarios de bloque (ej. /* ... */) preservando los saltos
+        de línea para no desfasar la numeración de líneas.
+        """
+        for apertura, cierre in self._com_bloque:
+            if not apertura or not cierre:
+                continue
+            patron = re.escape(apertura) + r'.*?' + re.escape(cierre)
+
+            def _reemplazo(m):
+                # Conservar los \n internos para no perder el conteo de líneas
+                return "\n" * m.group(0).count("\n")
+
+            texto = re.sub(patron, _reemplazo, texto, flags=re.DOTALL)
+        return texto
+
+    def _quitar_comentario_linea(self, linea: str) -> str:
+        """Corta la línea en el primer marcador de comentario de línea que aparezca."""
+        corte = len(linea)
+        for marcador in self._com_linea:
+            if not marcador:
+                continue
+            idx = linea.find(marcador)
+            if idx != -1 and idx < corte:
+                corte = idx
+        return linea[:corte]
+
     def parse(self, codigo_fuente: str):
         self.lineas = []
+        # Primero quitar comentarios de bloque de todo el texto
+        codigo_fuente = self._quitar_comentarios_bloque(codigo_fuente)
+
         for n, linea_raw in enumerate(codigo_fuente.splitlines(), start=1):
-            linea = linea_raw.split(";")[0].strip()
+            linea = self._quitar_comentario_linea(linea_raw).strip()
             if not linea:
                 continue
 
@@ -229,7 +257,7 @@ class Ensamblador:
                     if match_alias:
                         imm_part = match_alias.group(1)
                         reg_part = match_alias.group(2).lower()
-                        reg_resuelto = self._ALIAS_ABI.get(reg_part, reg_part)
+                        reg_resuelto = self._alias.get(reg_part, reg_part)
                         resultado[nombre_imm] = imm_part
                         resultado[nombre_reg] = reg_resuelto
                     else:
@@ -248,76 +276,84 @@ class Ensamblador:
 
     def _ensamblar_instruccion(self, inst, fmt, campos_def,
                                 mapa_valores, pc, n_linea):
-        opcode         = inst["opcode"]
+        """
+        Construye la palabra binaria a partir de los campos del formato.
+
+        Cada campo declara su 'tipo':
+          - opcode / constante → valor fijo definido en la instrucción (campos_def)
+          - registro / inmediato → valor variable que viene del código del usuario
+
+        El orden de concatenación depende de fmt["lectura"]:
+          - "msb_primero": primer campo de la lista = bits más significativos
+          - "lsb_primero": primer campo de la lista = bits menos significativos
+        """
+        mnem           = inst.get("mnemonico", "?")
         bits_totales   = fmt["total_bits"]
         campos_formato = fmt["campos_operandos"]
+        lectura        = fmt.get("lectura", "msb_primero")
 
-        if len(opcode) != fmt["bits_opcode"]:
-            raise ErrorDeEnsamblado(
-                f"'{inst['mnemonico']}': opcode tiene {len(opcode)} bits, "
-                f"se esperaban {fmt['bits_opcode']}", n_linea)
-
-        partes = [opcode]
+        partes = []  # lista de (string binario) en el orden de la lista de campos
 
         for campo in campos_formato:
-            if isinstance(campo, list):
-                nombre_c = campo[0]
-                bits_c   = campo[1]
-                orden    = {str(i): i for i in range(bits_c)}
-            else:
-                nombre_c = campo["nombre"]
-                bits_c   = campo["bits"]
-                orden    = campo.get("orden_bits", {str(i): i for i in range(bits_c)})
+            nombre_c = campo["nombre"]
+            bits_c   = campo["bits"]
+            tipo_c   = campo.get("tipo", "constante")
+            orden    = campo.get("orden_bits", {str(i): i for i in range(bits_c)})
 
-            valor_const = campos_def.get(nombre_c, "")
-
-            if valor_const:
-                # Campo constante definido en la instrucción
+            # ── Campos de valor fijo: opcode y constante ──────────────
+            if tipo_c in ("opcode", "constante"):
+                valor_const = campos_def.get(nombre_c, "")
+                if not valor_const:
+                    raise ErrorDeEnsamblado(
+                        f"'{mnem}': el campo '{nombre_c}' (tipo {tipo_c}) "
+                        f"no tiene valor definido en la instrucción.", n_linea)
                 if len(valor_const) != bits_c:
                     raise ErrorDeEnsamblado(
-                        f"'{inst['mnemonico']}': campo '{nombre_c}' tiene "
-                        f"{len(valor_const)} bits, se esperaban {bits_c}", n_linea)
+                        f"'{mnem}': campo '{nombre_c}' tiene {len(valor_const)} "
+                        f"bits, se esperaban {bits_c}", n_linea)
                 partes.append(valor_const)
+                continue
+
+            # ── Campos variables: registro e inmediato ────────────────
+            op_raw = mapa_valores.get(nombre_c)
+
+            # Fallback: campo base quitando sufijos _lo/_hi (inmediatos partidos)
+            if op_raw is None:
+                nombre_base = re.sub(r'_(lo|hi|hi2|lo2|[0-9]+)$', '', nombre_c)
+                op_raw = mapa_valores.get(nombre_base)
+
+            if op_raw is None:
+                raise ErrorDeEnsamblado(
+                    f"'{mnem}': no se encontró valor para el campo '{nombre_c}'. "
+                    f"Revisa el mapeo de operandos.", n_linea)
+
+            # Ancho de resolución: si hay orden_bits personalizado, usar el
+            # bit más alto referenciado + 1 (ancho del inmediato completo)
+            natural = {str(i): i for i in range(bits_c)}
+            if orden != natural and orden:
+                bits_resolucion = max(int(k) for k in orden.keys()) + 1
             else:
-                # Campo variable — obtener del mapa de valores
-                op_raw       = mapa_valores.get(nombre_c)
-                uso_fallback = False
+                bits_resolucion = bits_c
 
-                # Fallback: buscar campo base quitando sufijos _lo/_hi etc.
-                # Permite que 'imm_lo' e 'imm_hi' se resuelvan desde 'imm'
-                if op_raw is None:
-                    nombre_base = re.sub(r'_(lo|hi|hi2|lo2|[0-9]+)$', '', nombre_c)
-                    op_raw = mapa_valores.get(nombre_base)
-                    if op_raw is not None:
-                        uso_fallback = True
+            valor_bin = self._resolver_operando(
+                op_raw, nombre_c, tipo_c, bits_resolucion, pc, n_linea, mnem)
 
-                if op_raw is None:
-                    raise ErrorDeEnsamblado(
-                        f"'{inst['mnemonico']}': no se encontró valor para "
-                        f"el campo '{nombre_c}'. Revisa el mapeo de operandos.",
-                        n_linea)
+            valor_bin = self._aplicar_orden_bits(
+                valor_bin, bits_c, orden, nombre_c, n_linea, mnem)
 
-                # Si tiene orden_bits personalizado, resolver con el ancho real
-                # = bit índice más alto + 1 (aplica tanto a fallback como a campo directo)
-                natural = {str(i): i for i in range(bits_c)}
-                if orden != natural and orden:
-                    bits_resolucion = max(int(k) for k in orden.keys()) + 1
-                else:
-                    bits_resolucion = bits_c
+            partes.append(valor_bin)
 
-                valor_bin = self._resolver_operando(
-                    op_raw, nombre_c, bits_resolucion, pc, n_linea, inst["mnemonico"])
-
-                valor_bin = self._aplicar_orden_bits(
-                    valor_bin, bits_c, orden, nombre_c, n_linea, inst["mnemonico"])
-
-                partes.append(valor_bin)
-
-        palabra = "".join(reversed(partes))
+        # Concatenar según dirección de lectura
+        if lectura == "lsb_primero":
+            # Primer campo = bits menos significativos → va a la derecha
+            palabra = "".join(reversed(partes))
+        else:
+            # msb_primero: primer campo = bits más significativos → va a la izquierda
+            palabra = "".join(partes)
 
         if len(palabra) != bits_totales:
             raise ErrorDeEnsamblado(
-                f"'{inst['mnemonico']}': la instrucción generó {len(palabra)} bits, "
+                f"'{mnem}': la instrucción generó {len(palabra)} bits, "
                 f"se esperaban {bits_totales}", n_linea)
 
         return palabra
@@ -326,22 +362,46 @@ class Ensamblador:
     #  RESOLVER OPERANDO
     # ─────────────────────────────────────────────
 
-    def _resolver_operando(self, op_raw, nombre_campo, bits, pc, n_linea, mnem):
+    def _resolver_operando(self, op_raw, nombre_campo, tipo_campo, bits, pc, n_linea, mnem):
+        """
+        Convierte un operando textual en su representación binaria.
+        El 'tipo_campo' ("registro" | "inmediato") determina qué se acepta:
+          - registro: solo registros (con prefijo o alias). Rechaza números/etiquetas.
+          - inmediato: solo números o etiquetas. Rechaza registros.
+        """
         op = op_raw.strip()
 
-        # Resolver alias ABI (sp→x2, zero→x0, ra→x1, etc.)
-        if op.lower() in self._ALIAS_ABI:
-            op = self._ALIAS_ABI[op.lower()]
+        # Resolver alias de registro (sp→x2, etc.) definidos por el usuario
+        es_alias = op.lower() in self._alias
 
-        # Registro
-        match_reg = re.match(
-            rf'^{re.escape(self._prefijo)}(\d+)$', op, re.IGNORECASE)
-        if match_reg:
-            n = int(match_reg.group(1))
-            if n >= self._n_regs:
-                raise ErrorDeEnsamblado(
-                    f"'{mnem}': registro '{op}' fuera de rango", n_linea)
-            return self._int_a_bin(n, bits, n_linea, mnem, op)
+        if tipo_campo == "registro":
+            if es_alias:
+                op = self._alias[op.lower()]
+            match_reg = re.match(
+                rf'^{re.escape(self._prefijo)}(\d+)$', op, re.IGNORECASE) \
+                if self._prefijo else None
+            if match_reg:
+                n = int(match_reg.group(1))
+                if self._n_regs and n >= self._n_regs:
+                    raise ErrorDeEnsamblado(
+                        f"'{mnem}': registro '{op}' fuera de rango "
+                        f"(máximo {self._n_regs - 1})", n_linea)
+                return self._int_a_bin(n, bits, n_linea, mnem, op)
+            raise ErrorDeEnsamblado(
+                f"'{mnem}': el campo '{nombre_campo}' espera un registro, "
+                f"pero se recibió '{op_raw}'", n_linea)
+
+        # tipo_campo == "inmediato"
+        # Un registro o alias en un campo inmediato es un error
+        if es_alias:
+            raise ErrorDeEnsamblado(
+                f"'{mnem}': el campo '{nombre_campo}' espera un valor inmediato, "
+                f"pero se recibió un registro ('{op_raw}')", n_linea)
+        if self._prefijo and re.match(
+                rf'^{re.escape(self._prefijo)}\d+$', op, re.IGNORECASE):
+            raise ErrorDeEnsamblado(
+                f"'{mnem}': el campo '{nombre_campo}' espera un valor inmediato, "
+                f"pero se recibió un registro ('{op_raw}')", n_linea)
 
         # Etiqueta
         if op.upper() in self.tabla_simbolos:
@@ -361,7 +421,8 @@ class Ensamblador:
             pass
 
         raise ErrorDeEnsamblado(
-            f"'{mnem}': no se pudo interpretar el operando '{op_raw}'", n_linea)
+            f"'{mnem}': no se pudo interpretar el operando '{op_raw}' "
+            f"para el campo '{nombre_campo}'", n_linea)
 
     def _int_a_bin(self, valor, bits, n_linea, mnem, op_raw, signed=False):
         if signed or valor < 0:
